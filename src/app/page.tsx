@@ -126,98 +126,68 @@ function WebPageInner() {
   }, [getCurrentGuardianList, getVerifierList, pageState?.data?.caHash, pageState?.data?.originChainId]);
 
   return (
-    <PortkeyAssetProvider pin={pin} originChainId={did?.didWallet?.originChainId || 'AELF'}>
-      <div>
-        <div
-          className="portkey-ui-flex portkey-ui-flex-center"
-          onClick={() => {
-            pageState &&
-              OpenPageService.closePage(
-                pageState.eventName,
-                errorHandler(200003, new ProviderError(ResponseMessagePreset['USER_DENIED'], ResponseCode.USER_DENIED)),
-              );
-          }}>
-          <CustomSvg type="Close2" style={{ width: 30, height: 30 }} />
-          close page
-        </div>
-
-        {(pageState?.pageType === WalletPageType.Login || pageState?.pageType === WalletPageType.CustomLogin) && (
-          <SignInInner onLoginErrorCb={onDisconnect} />
-        )}
-
-        <div>-----------</div>
-        {/* TODO: just for telegram */}
-        {pageState?.pageType === WalletPageType.GuardianApproveForLogin && pageState.data && (
-          <GuardianApproval
-            guardianList={guardianListForLogin}
-            networkType={pageState.data.networkType as NetworkType}
-            caHash={pageState.data.caHash}
-            originChainId={pageState.data.originChainId}
-            targetChainId={pageState.data.targetChainId}
-            operationType={OperationTypeEnum.communityRecovery}
-            operationDetails={getOperationDetails(OperationTypeEnum.communityRecovery)}
-            onConfirm={onTGSignInApprovalSuccess}
-          />
-        )}
-
-        <div>-----------</div>
-        {pageState?.pageType === WalletPageType.AddGuardian && (
-          <GuardianAdd
-            caHash={pageState?.data?.caHash}
-            originChainId={pageState?.data?.originChainId}
-            guardianList={AddGuardianApproveList}
-            verifierList={verifierList}
-            networkType={pageState?.data?.networkType as NetworkType}
-            handleAddGuardian={handleAddGuardian}
-          />
-        )}
-
-        <div>-----------</div>
-        {pageState?.pageType === WalletPageType.SetAllowance && (
-          <ManagerApproveInner
-            caHash={pageState.data.caHash}
-            symbol={pageState.data.symbol}
-            amount={pageState.data.amount}
-            originChainId={pageState.data.originChainId}
-            targetChainId={pageState.data.targetChainId}
-            networkType={pageState.data.networkType}
-          />
-        )}
-
-        <div>-----------</div>
-        {/* 
-      <Button
-        onClick={async () => {
-          // Mock pin: 111111
-          const wallet = await did.load(PIN);
-          console.log('wallet:', wallet);
-          // Mock chainId: 'AELF'
-          const result = await did.logout({ chainId: wallet.didWallet.originChainId ?? CHAIN_ID });
-          console.log(result, 'logout====');
+    <div>
+      <div
+        className="portkey-ui-flex portkey-ui-flex-center"
+        onClick={() => {
+          pageState &&
+            OpenPageService.closePage(
+              pageState.eventName,
+              errorHandler(200003, new ProviderError(ResponseMessagePreset['USER_DENIED'], ResponseCode.USER_DENIED)),
+            );
         }}>
-        logout
-      </Button>
-      <div>-----------</div>
+        <CustomSvg type="Close2" style={{ width: 30, height: 30 }} />
+        close page
+      </div>
 
-      <Button
-        onClick={async () => {
-          // Mock pin: 111111
-          const wallet = await did.load(PIN);
-          console.log(wallet, 'wallet==load');
-        }}>
-        load
-      </Button> */}
+      {(pageState?.pageType === WalletPageType.Login || pageState?.pageType === WalletPageType.CustomLogin) && (
+        <SignInInner onLoginErrorCb={onDisconnect} />
+      )}
 
-        <div>-----------</div>
-        {pageState?.pageType === WalletPageType.Assets && pin && did.didWallet.originChainId && (
-          <>
-            <a href="dapp-webapp">
-              <Button>Go to dapp-webapp</Button>
-            </a>
+      {pageState?.pageType === WalletPageType.UnLock && <UnlockInner onUnlock={onUnlock} onForgetPin={onDisconnect} />}
+      {/* TODO: just for telegram */}
+      {pageState?.pageType === WalletPageType.GuardianApproveForLogin && pageState.data && (
+        <GuardianApproval
+          guardianList={guardianListForLogin}
+          networkType={pageState.data.networkType as NetworkType}
+          caHash={pageState.data.caHash}
+          originChainId={pageState.data.originChainId}
+          targetChainId={pageState.data.targetChainId}
+          operationType={OperationTypeEnum.communityRecovery}
+          operationDetails={getOperationDetails(OperationTypeEnum.communityRecovery)}
+          onConfirm={onTGSignInApprovalSuccess}
+        />
+      )}
+
+      {pageState?.pageType === WalletPageType.AddGuardian && (
+        <GuardianAdd
+          caHash={pageState?.data?.caHash}
+          originChainId={pageState?.data?.originChainId}
+          guardianList={AddGuardianApproveList}
+          verifierList={verifierList}
+          networkType={pageState?.data?.networkType as NetworkType}
+          handleAddGuardian={handleAddGuardian}
+        />
+      )}
+      {pin && did?.didWallet?.originChainId && (
+        <PortkeyAssetProvider pin={pin} originChainId={did?.didWallet?.originChainId || 'AELF'}>
+          {pageState?.pageType === WalletPageType.SetAllowance && (
+            <ManagerApproveInner
+              caHash={pageState.data.caHash}
+              symbol={pageState.data.symbol}
+              amount={pageState.data.amount}
+              originChainId={pageState.data.originChainId}
+              targetChainId={pageState.data.targetChainId}
+              networkType={pageState.data.networkType}
+            />
+          )}
+
+          {pageState?.pageType === WalletPageType.Assets && pin && did.didWallet.originChainId && (
             <Asset
               faucet={{
                 faucetContractAddress: '233wFn5JbyD4i8R5Me4cW4z6edfFGRn5bpWnGuY8fjR7b2kRsD',
               }}
+              backIcon={null}
               onDeleteAccount={async () => {
                 const wallet = await did.load(pin);
                 try {
@@ -227,13 +197,10 @@ function WebPageInner() {
                 onDisconnect();
               }}
             />
-          </>
-        )}
-        {pageState?.pageType === WalletPageType.UnLock && (
-          <UnlockInner onUnlock={onUnlock} onForgetPin={onDisconnect} />
-        )}
-      </div>
-    </PortkeyAssetProvider>
+          )}
+        </PortkeyAssetProvider>
+      )}
+    </div>
   );
 }
 

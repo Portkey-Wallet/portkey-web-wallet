@@ -43,8 +43,6 @@ export function ServiceWorker() {
           isTelegram: typeof options.isTelegram === 'boolean' ? options.isTelegram : options.isTelegram === 'true',
         }),
       );
-    const networkType = (options.networkType ?? 'MAINNET') as keyof typeof LOGIN_CONFIG;
-    ConfigProvider.setGlobalConfig({ ...(LOGIN_CONFIG[networkType] as any) });
 
     serviceRef.current = new ServiceWorkerInstantiate({ appId: options.appId, networkType: options.networkType });
   }, [dispatch]);

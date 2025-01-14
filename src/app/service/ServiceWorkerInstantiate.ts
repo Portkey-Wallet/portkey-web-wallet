@@ -1,6 +1,6 @@
 import PermissionController from '../controllers/PermissionController';
 import { MethodsWallet, MethodsBase, NetworkType } from '@portkey/provider-types';
-import { IRequestPayload } from '../types';
+import { IRequestPayload, WalletPageType } from '../types';
 import { SendResponseFun } from './types';
 import AELFMethodController from '../controllers/AELFMethodController';
 import ApprovalController from '../controllers/ApprovalController';
@@ -8,6 +8,7 @@ import errorHandler from '../utils/errorHandler';
 import { did } from '@portkey/did-ui-react';
 import { getWebWalletStorageKey } from '../utils/wallet';
 import SWEventController from '../controllers/EventController/SWEventController';
+import OpenPageService from './OpenPageService';
 
 const permissionWhitelist = [
   MethodsWallet.GET_WALLET_STATE,
@@ -83,7 +84,9 @@ export default class ServiceWorkerInstantiate {
       case MethodsWallet.WALLET_DISCONNECT:
         this.disconnect(sendResponse);
         break;
-
+      case MethodsWallet.WALLET_SHOW_ASSETS:
+        this.showAssetPage(sendResponse);
+        break;
       default:
         if (this.aelfMethodController.aelfMethodList.includes(message.method)) {
           console.log('serviceWorker dispenseMessage ', message);
@@ -93,6 +96,11 @@ export default class ServiceWorkerInstantiate {
         sendResponse(errorHandler(700001, `Portkey does not contain this method (${message.method})`));
         break;
     }
+  }
+
+  async showAssetPage(sendResponse: SendResponseFun) {
+    OpenPageService.openPage({ pageType: WalletPageType.Assets });
+    sendResponse({ ...errorHandler(0), data: null });
   }
 
   async disconnect(sendResponse: SendResponseFun) {
