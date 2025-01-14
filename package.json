@@ -1,0 +1,33 @@
+{
+  "name": "portkey-web-wallet",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:Portkey-Wallet/portkey-web-wallet.git",
+  "author": "sarah-portkey <sarah@portkey.finance>",
+  "license": "MIT",
+  "dependencies": {
+    "@portkey/did-ui-react": "^2.17.2-alpha.1",
+    "@portkey/did": "^2.17.2-alpha.1",
+    "@portkey/connect-web-wallet": "^2.17.2-alpha.1",
+    "@portkey/onboarding": "^2.17.2-alpha.1",
+    "@portkey/iframe-provider": "^2.4.0-alpha.5",
+    "@portkey/provider-types": "^2.4.0-alpha.5",
+    "aelf-sdk": "^3.4.7",
+    "antd": "4.24.14",
+    "query-string": "^7.1.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-use": "^17.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/node-telegram-bot-api": "^0.64.3",
+    "autoprefixer": "^10.0.1",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.5",
+    "postcss": "^8",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5",
+    "vconsole": "3.15.1"
+  }
+}
