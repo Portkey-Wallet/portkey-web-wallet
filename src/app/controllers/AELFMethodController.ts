@@ -30,6 +30,7 @@ const aelfMethodList = [
   MethodsBase.CHAIN_ID,
   MethodsBase.CHAIN_IDS,
   MethodsBase.CHAINS_INFO,
+  MethodsBase.WALLET_INFO,
   MethodsBase.REQUEST_ACCOUNTS,
   MethodsBase.SEND_TRANSACTION,
   MethodsBase.SET_WALLET_CONFIG_OPTIONS,
@@ -201,6 +202,9 @@ export default class AELFMethodController {
         break;
       case MethodsBase.CA_HASH:
         this.getCAHash(sendResponse, message.payload);
+        break;
+      case MethodsBase.WALLET_INFO:
+        this.getWalletInfo(sendResponse, message.payload);
         break;
       case MethodsWallet.GET_WALLET_SIGNATURE: {
         const isCipherText = checkIsCipherText(message.payload.payload.data);
@@ -419,6 +423,10 @@ export default class AELFMethodController {
         },
       });
     }
+  };
+
+  getWalletInfo: RequestCommonHandler = async sendResponse => {
+    sendResponse({ ...errorHandler(0), data: await this.dappManager.walletInfo() });
   };
 
   requestAccounts: RequestCommonHandler = async (sendResponse, message) => {

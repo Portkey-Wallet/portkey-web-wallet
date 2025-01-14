@@ -62,6 +62,18 @@ export abstract class DappManager implements IDappManager {
   //   this.store.dispatch(updateCASyncState({ networkType: currentNetwork, chainId }));
   // }
 
+  async walletInfo() {
+    const wallet = this.getWallet();
+
+    return {
+      caHash: wallet?.aaInfo?.accountInfo?.caHash,
+      caAddress: wallet?.aaInfo?.accountInfo?.caAddress,
+      nickName: wallet?.aaInfo?.nickName,
+      managerAddress: wallet?.managementAccount?.wallet?.address,
+      managerPubkey: wallet?.managementAccount?.wallet?.keyPair.getPublic('hex'),
+    };
+  }
+
   async getHolderInfoByManager() {
     const wallet = this.getWallet();
     if (this.AAInfo && this.AAInfo.length >= 2) return this.AAInfo;
