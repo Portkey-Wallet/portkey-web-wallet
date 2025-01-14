@@ -13,7 +13,6 @@ import {
   ResponseCode,
   NotificationEvents,
 } from '@portkey/provider-types';
-import { ConfigProvider, eventBus } from '@portkey/did-ui-react';
 import qs from 'qs';
 import { IRequestPayload } from '@/app/types';
 import { LOGIN_CONFIG } from '@/app/constants/config';
@@ -21,6 +20,7 @@ import OpenPageService from '@/app/service/OpenPageService';
 import ServiceWorkerInstantiate from '@/app/service/ServiceWorkerInstantiate';
 import { SendResponseFun } from '@/app/service/types';
 import { WEB_WALLET_DISPATCH_EVENT } from '@/app/constants/events';
+import { eventBus } from '@/app/utils/lib';
 let pageStream: ContentPostStream;
 const INPAGE_TARGET = 'PORTKEY_WEB_WALLET_INGAGE';
 const CONTENT_TARGET = 'PORTKEY_WEB_WALLET_CONTENT';
@@ -49,8 +49,10 @@ export function ServiceWorker() {
 
   useEffect(() => {
     const eventHandler = (message: any) => {
+      console.log(message, 'evnent, WEB_WALLET_DISPATCH_EVENT');
       pageStream.send({ ...message, target: INPAGE_TARGET });
     };
+    eventBus.addListener(WEB_WALLET_DISPATCH_EVENT, eventHandler);
 
     return () => {
       eventBus.removeListener(WEB_WALLET_DISPATCH_EVENT, eventHandler);

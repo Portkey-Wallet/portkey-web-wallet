@@ -15,8 +15,8 @@ import {
 } from '@portkey/provider-types';
 
 import { isNotificationEvents } from '@portkey/providers';
-import { eventBus } from '../../utils/lib';
 import { WEB_WALLET_DISPATCH_EVENT } from '../../constants/events';
+import { eventBus } from '@/app/utils/lib';
 
 export interface DappEventPack<T = DappEvents, D = any> {
   eventName: T;
