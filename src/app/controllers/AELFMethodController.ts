@@ -72,6 +72,7 @@ export default class AELFMethodController {
     const caHash = this.dappManager.caHash();
     const chainInfo = await this.dappManager.getChainInfo(chainId);
     const managerAddress = await this.dappManager.currentManagerAddress();
+
     if (!chainInfo) return;
     const contract: any = await this.getCaContract(chainInfo);
 
@@ -89,52 +90,78 @@ export default class AELFMethodController {
 
     const { params } = payload || {};
     const chainId = message.payload?.chainId;
+    const caHash = this.dappManager.caHash();
     const chainInfo = await this.dappManager.getChainInfo(chainId);
+    const originChainId = await this.dappManager.getOriginChainId();
+
     if (!chainInfo) return;
 
     const { symbol, amount, spender } = params?.paramsOption || {};
     // check approve input && check valid amount
     if (!(symbol && amount && spender) || ZERO.plus(amount).isNaN() || ZERO.plus(amount).lte(0)) {
-      return;
-      // return generateErrorResponse({ eventName, code: ResponseCode.ERROR_IN_PARAMS });
+      return sendResponse({
+        ...errorHandler(410002),
+        data: {
+          code: ResponseCode.ERROR_IN_PARAMS,
+          message,
+        },
+      });
     }
-
-    console.log('tokenContract start');
 
     const tokenContract = await this.getTokenContract(chainInfo);
-    const tokenInfo = await tokenContract?.callViewMethod('GetTokenInfo', { symbol });
-
-    console.log('tokenContract end', tokenInfo);
-
-    if (tokenInfo?.error || isNaN(tokenInfo?.data.decimals)) {
-      return;
-      // return generateErrorResponse({ eventName, code: ResponseCode.ERROR_IN_PARAMS, msg: `${symbol} error` });
+    if (typeof tokenContract === 'string') {
+      return sendResponse({
+        ...errorHandler(410002),
+        data: {
+          code: ResponseCode.ERROR_IN_PARAMS,
+          message: tokenContract,
+        },
+      });
     }
 
-    // TODO: show info modal
+    const tokenInfo = await tokenContract?.callViewMethod('GetTokenInfo', { symbol });
+
+    if (tokenInfo?.error || isNaN(tokenInfo?.data.decimals)) {
+      return sendResponse({
+        ...errorHandler(410002),
+        data: {
+          code: ResponseCode.ERROR_IN_PARAMS,
+          message: `${symbol} error`,
+        },
+      });
+    }
+
     const { data } = await OpenPageService.openPage({
       pageType: WalletPageType.SetAllowance,
       data: {
+        caHash,
+        networkType: this.networkType,
+        originChainId,
+        targetChainId: payload.chainId,
+        symbol,
+        amount,
         approveInfo: {
           ...params?.paramsOption,
           decimals: tokenInfo?.data.decimals,
           targetChainId: payload.chainId,
           contractAddress: chainInfo?.caContractAddress,
         },
-        eventName,
         batchApproveNFT: this.config?.batchApproveNFT,
       },
     });
 
     if (!data) {
-      // TODO: change it
-      // return this.userDenied(eventName);
+      return sendResponse({
+        ...errorHandler(410002),
+        data: {
+          code: ResponseCode.ERROR_IN_PARAMS,
+        },
+      });
     }
 
     const { guardiansApproved, approveInfo } = data;
     const finallyApproveSymbol = this.config?.batchApproveNFT ? getApproveSymbol(approveInfo.symbol) : symbol;
 
-    const caHash = this.dappManager.caHash();
     return this.sendTransaction(sendResponse, {
       ...payload,
       method: ApproveMethod.ca,
@@ -152,25 +179,7 @@ export default class AELFMethodController {
   };
 
   handleRequest = async ({ params, method, callBack }: { params: any; method: any; callBack: any }) => {
-    // TODO
-    // if (!REMEMBER_ME_ACTION_WHITELIST.includes(method)) {
-    //   return await callBack(params);
-    // }
-
-    // TODO: check is validSession
-    // const validSession = await this.verifySessionInfo(params.origin);
-    const validSession = false;
-    let result;
-    if (validSession) {
-      // result = await this.approvalController.authorizedToAutoExecute({
-      //   ...params,
-      //   method,
-      // });
-    } else {
-      result = await callBack(params);
-    }
-
-    return result;
+    return await callBack(params);
   };
 
   dispenseMessage = (message: IRequestPayload, sendResponse: SendResponseFun) => {
