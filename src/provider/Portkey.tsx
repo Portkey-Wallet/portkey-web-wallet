@@ -17,11 +17,11 @@ export default function Portkey({ children }: { children?: ReactNode }) {
     const networkType = (options.networkType ?? 'MAINNET') as keyof typeof LOGIN_CONFIG;
     setConfig({ network: networkType, theme: options.theme });
 
-    ConfigProvider.setGlobalConfig({ ...(LOGIN_CONFIG[networkType] as any) });
+    ConfigProvider.setGlobalConfig({ ...(LOGIN_CONFIG[networkType] as any), theme: options.theme });
   }, []);
 
   return (
-    <PortkeyProvider networkType={config?.network} theme={config?.theme}>
+    <PortkeyProvider networkType={config?.network} theme={config.theme}>
       {children}
     </PortkeyProvider>
   );

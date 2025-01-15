@@ -49,7 +49,6 @@ export function ServiceWorker() {
 
   useEffect(() => {
     const eventHandler = (message: any) => {
-      console.log(message, 'evnent, WEB_WALLET_DISPATCH_EVENT');
       pageStream.send({ ...message, target: INPAGE_TARGET });
     };
     eventBus.addListener(WEB_WALLET_DISPATCH_EVENT, eventHandler);
