@@ -10,11 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@portkey/connect-web-wallet": "2.19.0-alpha.1",
-    "@portkey/did": "2.19.0-alpha.1",
-    "@portkey/did-ui-react": "2.19.0-alpha.1",
+    "@portkey/connect-web-wallet": "2.19.0-alpha.4",
+    "@portkey/did": "2.19.0-alpha.4",
+    "@portkey/did-ui-react": "2.19.0-alpha.4",
     "@portkey/iframe-provider": "^2.4.0-alpha.6",
-    "@portkey/onboarding": "2.19.0-alpha.1",
+    "@portkey/onboarding": "2.19.0-alpha.4",
     "@portkey/provider-types": "^2.4.0-alpha.6",
     "@types/qs": "^6.9.18",
     "aelf-sdk": "^3.4.7",
