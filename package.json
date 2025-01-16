@@ -1,13 +1,13 @@
 {
-  "name": "@portkey/next-example",
-  "version": "2.17.2-alpha.1",
+  "name": "vite",
   "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "dev-https": "next dev --experimental-https",
-    "build-now": "next build",
-    "dev": "next dev",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@portkey/connect-web-wallet": "2.19.0-alpha.1",
@@ -19,37 +19,38 @@
     "@types/qs": "^6.9.18",
     "aelf-sdk": "^3.4.7",
     "antd": "4.24.14",
+    "buffer": "^6.0.3",
     "next": "14.2.5",
     "node-telegram-bot-api": "^0.65.1",
     "qs": "^6.13.1",
     "query-string": "^7.1.1",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "react-use": "^17.5.0"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "vite-plugin-node-polyfills": "^0.22.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.17.0",
     "@tsconfig/recommended": "^1.0.1",
     "@types/node": "^20",
     "@types/node-telegram-bot-api": "^0.64.3",
-    "autoprefixer": "^10.0.1",
-    "eslint": "^7.32.0",
-    "eslint-config-next": "14.2.5",
-    "prettier": "^2.6.2",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-prettier": "^3.1.3",
-    "eslint-plugin-react": "^7.37.4",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.0.1",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-react": "^7.37.4",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.18",
+    "globals": "^15.14.0",
     "postcss": "^8",
+    "prettier": "^2.6.2",
     "tailwindcss": "^3.3.0",
-    "typescript": "^5",
-    "vconsole": "3.15.1"
-  },
-  "resolutions": {
-    "@types/react": "18.2.25",
-    "@types/react-dom": "18"
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "eslint --cache --fix"
+    "typescript": "~5.6.2",
+    "typescript-eslint": "^8.18.2",
+    "vite": "^6.0.5"
   }
 }

@@ -14,24 +14,22 @@ import {
   UserGuardianStatus,
 } from '@portkey/did-ui-react';
 import { ChainId } from '@portkey/types';
-import { Button } from 'antd';
-import { useWebWallet, WalletProvider } from './context/WalletProvider';
-import { OperationTypeEnum, WalletPageType } from './types';
-import { OpenPageService } from './service/OpenPageService';
-import { getWebWalletStorageKey } from './utils/wallet';
-import { useWalletDispatch } from './context/WalletProvider/hooks';
-import { basicWebWalletView } from './context/WalletProvider/actions';
-import SWEventController from './controllers/EventController/SWEventController';
-import SignInInner from './components/SignInInner';
+import { useWebWallet, WalletProvider } from '../context/WalletProvider';
+import { OperationTypeEnum, WalletPageType } from '../types';
+import { OpenPageService } from '../service/OpenPageService';
+import { getWebWalletStorageKey } from '../utils/wallet';
+import { useWalletDispatch } from '../context/WalletProvider/hooks';
+import { basicWebWalletView } from '../context/WalletProvider/actions';
+import SWEventController from '../controllers/EventController/SWEventController';
+import SignInInner from '../components/SignInInner';
 import { GuardiansApproved } from '@portkey/services';
-
-import UnlockInner from './components/UnlockInner';
+import UnlockInner from '../components/UnlockInner';
 import { ProviderError, ResponseCode, ResponseMessagePreset } from '@portkey/provider-types';
-import errorHandler from './utils/errorHandler';
-import { clearManagerReadOnly } from './utils/clearManagerReadOnly';
-import useVerifier from './hooks/useVerifier';
-import useGuardianList from './hooks/guardian';
-import { addGuardian } from './utils/guardian';
+import errorHandler from '../utils/errorHandler';
+import { clearManagerReadOnly } from '../utils/clearManagerReadOnly';
+import useVerifier from '../hooks/useVerifier';
+import useGuardianList from '../hooks/guardian';
+import { addGuardian } from '../utils/guardian';
 
 function WebPageInner() {
   const [{ pageState, pin, options }] = useWebWallet();
@@ -59,11 +57,13 @@ function WebPageInner() {
       eventName: 'disconnected',
       data: { message: 'user logout' },
     });
-    pageState &&
+
+    if (pageState) {
       OpenPageService.closePage(
         pageState.eventName,
         errorHandler(200004, new ProviderError(ResponseMessagePreset['USER_DENIED'], ResponseCode.USER_DENIED)),
       );
+    }
   }, [options?.appId, pageState]);
 
   const onTGSignInApprovalSuccess = useCallback(
@@ -87,7 +87,9 @@ function WebPageInner() {
         });
       }
       localStorage.removeItem('guardianListForLogin');
-      pageState && OpenPageService.closePage(pageState.eventName, { error: 0, data: res });
+      if (pageState) {
+        OpenPageService.closePage(pageState.eventName, { error: 0, data: res });
+      }
     },
     [pageState],
   );
@@ -95,7 +97,10 @@ function WebPageInner() {
   const onUnlock = useCallback(
     async (pin: string) => {
       dispatch(basicWebWalletView.setWalletPin.actions(pin));
-      pageState && OpenPageService.closePage(pageState.eventName, { error: 0, data: pin });
+      if (pageState) {
+        OpenPageService.closePage(pageState.eventName, { error: 0, data: pin });
+      }
+
       SWEventController.dispatchEvent({
         eventName: 'connected',
         data: { chainIds: [did.didWallet.originChainId] },
@@ -113,7 +118,9 @@ function WebPageInner() {
         guardiansApprovedList: approvalInfo,
       });
       await getCurrentGuardianList(pageState?.data?.originChainId, pageState?.data?.caHash);
-      pageState && OpenPageService.closePage(pageState.eventName, { error: 0, data: { status: true } });
+      if (pageState) {
+        OpenPageService.closePage(pageState.eventName, { error: 0, data: { status: true } });
+      }
     },
     [getCurrentGuardianList, pageState],
   );
@@ -130,11 +137,12 @@ function WebPageInner() {
       <div
         className="portkey-ui-flex portkey-ui-flex-center"
         onClick={() => {
-          pageState &&
+          if (pageState) {
             OpenPageService.closePage(
               pageState.eventName,
               errorHandler(200003, new ProviderError(ResponseMessagePreset['USER_DENIED'], ResponseCode.USER_DENIED)),
             );
+          }
         }}>
         <CustomSvg type="Close2" style={{ width: 30, height: 30 }} />
         close page
@@ -192,7 +200,9 @@ function WebPageInner() {
                 const wallet = await did.load(pin);
                 try {
                   await did.logout({ chainId: wallet.didWallet.originChainId ?? 'tDVV' });
-                } catch (error) {}
+                } catch (error) {
+                  console.log('err', error);
+                }
                 did.reset();
                 onDisconnect();
               }}
@@ -204,7 +214,7 @@ function WebPageInner() {
   );
 }
 
-export default function Page() {
+export default function Home() {
   return (
     <WalletProvider>
       <WebPageInner />

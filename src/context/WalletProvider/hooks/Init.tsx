@@ -1,7 +1,7 @@
 import { ContentPostStream } from '@portkey/iframe-provider';
 import { useCallback, useEffect, useRef } from 'react';
 import { useWalletDispatch } from './index';
-import { basicWebWalletView } from '../actions';
+import { basicWebWalletView, IWalletOptions } from '../actions';
 import { IPageState } from '../../types';
 import { generateErrorResponse, generateNormalResponse } from '@portkey/provider-utils';
 import { browser } from '@portkey/utils';
@@ -14,13 +14,12 @@ import {
   NotificationEvents,
 } from '@portkey/provider-types';
 import qs from 'qs';
-import { IRequestPayload } from '@/app/types';
-import { LOGIN_CONFIG } from '@/app/constants/config';
-import OpenPageService from '@/app/service/OpenPageService';
-import ServiceWorkerInstantiate from '@/app/service/ServiceWorkerInstantiate';
-import { SendResponseFun } from '@/app/service/types';
-import { WEB_WALLET_DISPATCH_EVENT } from '@/app/constants/events';
-import { eventBus } from '@/app/utils/lib';
+import { IRequestPayload } from '@/types';
+import OpenPageService from '@/service/OpenPageService';
+import ServiceWorkerInstantiate from '@/service/ServiceWorkerInstantiate';
+import { SendResponseFun } from '@/service/types';
+import { WEB_WALLET_DISPATCH_EVENT } from '@/constants/events';
+import { eventBus } from '@/utils/lib';
 let pageStream: ContentPostStream;
 const INPAGE_TARGET = 'PORTKEY_WEB_WALLET_INGAGE';
 const CONTENT_TARGET = 'PORTKEY_WEB_WALLET_CONTENT';
@@ -34,15 +33,16 @@ export function ServiceWorker() {
   const serviceRef = useRef<ServiceWorkerInstantiate>();
 
   useEffect(() => {
-    const options: any = qs.parse(window.location.search.replace('?', ''));
+    const options = qs.parse(window.location.search.replace('?', '')) as unknown as IWalletOptions;
 
-    Object.values(options).length > 0 &&
+    if (Object.values(options).length > 0) {
       dispatch(
         basicWebWalletView.setWalletOptions.actions({
           ...options,
           isTelegram: typeof options.isTelegram === 'boolean' ? options.isTelegram : options.isTelegram === 'true',
         }),
       );
+    }
 
     serviceRef.current = new ServiceWorkerInstantiate({ appId: options.appId, networkType: options.networkType });
   }, [dispatch]);

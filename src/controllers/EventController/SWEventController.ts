@@ -16,9 +16,9 @@ import {
 
 import { isNotificationEvents } from '@portkey/providers';
 import { WEB_WALLET_DISPATCH_EVENT } from '../../constants/events';
-import { eventBus } from '@/app/utils/lib';
+import { eventBus } from '@/utils/lib';
 
-export interface DappEventPack<T = DappEvents, D = any> {
+export interface DappEventPack<T = DappEvents, D = unknown> {
   eventName: T;
   data?: D;
   origin?: string;
@@ -34,7 +34,7 @@ export default class SWEventController {
     return true;
   }
 
-  public static check(eventName: string, data: any): boolean {
+  public static check(eventName: string, data: unknown): boolean {
     return SWEventController.checkEventMethod(eventName) && SWEventController.checkDispatchEventParams(data);
   }
 

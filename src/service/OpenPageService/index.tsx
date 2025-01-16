@@ -1,7 +1,7 @@
 import { randomId } from '@portkey/utils';
 import { IOpenPageParams, IPageState } from '../../context/types';
 import { PortkeyResultType } from '../../types/error';
-import { eventBus } from '@/app/utils/lib';
+import { eventBus } from '@/utils/lib';
 
 export enum SetPageEvent {
   OPEN_PAGE = 'OPEN_PAGE',
