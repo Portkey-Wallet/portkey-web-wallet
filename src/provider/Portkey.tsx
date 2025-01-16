@@ -3,7 +3,8 @@ import { ConfigProvider, NetworkType, PortkeyProvider, ThemeType } from '@portke
 import { ReactNode, useEffect, useState } from 'react';
 import '@portkey/did-ui-react/dist/assets/index.css';
 import qs from 'qs';
-import { LOGIN_CONFIG } from '@/app/constants/config';
+import { LOGIN_CONFIG } from '@/constants/config';
+import { IWalletOptions } from '@/context/WalletProvider/actions';
 
 export default function Portkey({ children }: { children?: ReactNode }) {
   const [config, setConfig] = useState<{ network: NetworkType; theme: ThemeType }>({
@@ -12,10 +13,10 @@ export default function Portkey({ children }: { children?: ReactNode }) {
   });
 
   useEffect(() => {
-    const options: any = qs.parse(window.location.search.replace('?', ''));
+    const options = qs.parse(window.location.search.replace('?', '')) as unknown as IWalletOptions;
 
     const networkType = (options.networkType ?? 'MAINNET') as keyof typeof LOGIN_CONFIG;
-    setConfig({ network: networkType, theme: options.theme });
+    setConfig({ network: networkType, theme: options.theme || 'dark' });
 
     ConfigProvider.setGlobalConfig({ ...(LOGIN_CONFIG[networkType] as any), theme: options.theme });
   }, []);
