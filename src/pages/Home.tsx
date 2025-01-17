@@ -133,7 +133,7 @@ function WebPageInner() {
   }, [getCurrentGuardianList, getVerifierList, pageState?.data?.caHash, pageState?.data?.originChainId]);
 
   return (
-    <div className='page-wrap' style={{ backgroundColor: 'var(--sds-color-background-default-default)'}}>
+    <div className="page-wrap" style={{ backgroundColor: 'var(--sds-color-background-default-default)' }}>
       <div
         className="portkey-ui-flex portkey-ui-flex-center page-close-wrap"
         onClick={() => {
