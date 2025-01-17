@@ -70,6 +70,7 @@ export abstract class DappManager implements IDappManager {
       nickName: wallet?.aaInfo?.nickName,
       managerAddress: wallet?.managementAccount?.wallet?.address,
       managerPubkey: wallet?.managementAccount?.wallet?.keyPair.getPublic('hex'),
+      originChainId: wallet?.originChainId,
     };
   }
 
