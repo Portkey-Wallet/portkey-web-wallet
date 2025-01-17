@@ -18,7 +18,11 @@ export default function Portkey({ children }: { children?: ReactNode }) {
     const networkType = (options.networkType ?? 'MAINNET') as keyof typeof LOGIN_CONFIG;
     setConfig({ network: networkType, theme: options.theme || 'dark' });
 
-    ConfigProvider.setGlobalConfig({ ...(LOGIN_CONFIG[networkType] as any), theme: options.theme });
+    ConfigProvider.setGlobalConfig({
+      ...LOGIN_CONFIG[networkType],
+      theme: options.theme,
+      loginConfig: options.loginConfig,
+    });
   }, []);
 
   return (

@@ -28,7 +28,7 @@ import { OperationTypeEnum, SocialLoginType, TSignUpVerifier, WalletPageType } f
 import useVerifier from '../../hooks/useVerifier';
 import { ChainId } from '@portkey/provider-types';
 
-let CHAIN_ID: ChainId = 'tDVW';
+const CHAIN_ID: ChainId = 'tDVW';
 
 export default function SignInInner({ onLoginErrorCb }: { onLoginErrorCb: () => void }) {
   const ref = useRef<ISignIn>();
@@ -43,11 +43,13 @@ export default function SignInInner({ onLoginErrorCb }: { onLoginErrorCb: () => 
   const beforeCreatePending = useCallback(() => {
     if (options?.isTelegram && extraDataRef.current?.originChainId) {
       dispatch(basicWebWalletView.setWalletPin.actions(DEFAULT_PIN));
-      pageState && OpenPageService.closePage(pageState.eventName, { error: 0 });
-      SWEventController.dispatchEvent({
-        eventName: 'connected',
-        data: { chainIds: [extraDataRef.current.originChainId] },
-      });
+      if (pageState) {
+        OpenPageService.closePage(pageState.eventName, { error: 0 });
+        SWEventController.dispatchEvent({
+          eventName: 'connected',
+          data: { chainIds: [extraDataRef.current.originChainId] },
+        });
+      }
     }
   }, [dispatch, options?.isTelegram, pageState]);
 
@@ -58,7 +60,9 @@ export default function SignInInner({ onLoginErrorCb }: { onLoginErrorCb: () => 
       }
       if (options?.isTelegram) {
         did.save(DEFAULT_PIN, getWebWalletStorageKey(options?.appId));
-        pageState && OpenPageService.closePage(pageState.eventName, { error: 0 });
+        if (pageState) {
+          OpenPageService.closePage(pageState.eventName, { error: 0 });
+        }
         SWEventController.dispatchEvent({
           eventName: 'connected',
           data: { chainIds: [createPendingInfo.didWallet?.chainId] },
@@ -71,7 +75,9 @@ export default function SignInInner({ onLoginErrorCb }: { onLoginErrorCb: () => 
     async (res: DIDWalletInfo) => {
       did.save(res.pin, getWebWalletStorageKey(options?.appId));
       dispatch(basicWebWalletView.setWalletPin.actions(res.pin));
-      pageState && OpenPageService.closePage(pageState.eventName, { error: 0 });
+      if (pageState) {
+        OpenPageService.closePage(pageState.eventName, { error: 0 });
+      }
       SWEventController.dispatchEvent({ eventName: 'connected', data: { chainIds: [res.chainId] } });
     },
     [dispatch, options?.appId, pageState],
@@ -109,7 +115,9 @@ export default function SignInInner({ onLoginErrorCb }: { onLoginErrorCb: () => 
         const res = await createWallet(params);
         did.save(DEFAULT_PIN, getWebWalletStorageKey(options?.appId));
         dispatch(basicWebWalletView.setWalletPin.actions(DEFAULT_PIN));
-        pageState && OpenPageService.closePage(pageState.eventName, { error: 0 });
+        if (pageState) {
+          OpenPageService.closePage(pageState.eventName, { error: 0 });
+        }
         SWEventController.dispatchEvent({ eventName: 'connected', data: { chainIds: [res?.chainId] } });
       } else {
         setCurrentLifeCircle({
