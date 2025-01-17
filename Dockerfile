@@ -23,7 +23,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 #ARG APP_ENV
 #RUN echo "...Building for ${ENVIRONMENT} / ${APP_ENV}"
 # more standardised build script, refer to package.json
-RUN npx tsc -b / npx vite build
+RUN npx tsc -b/
+RUN npx vite build
 
 # Production image, copy all the files and run next
 FROM base AS runner
