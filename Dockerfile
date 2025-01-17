@@ -4,28 +4,25 @@ ARG external_port=3000
 
 FROM base AS deps
 WORKDIR ${web}
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+COPY package.json yarn.lock* package-lock.json* ./
 RUN yarn install --frozen-lockfile
-
 
 FROM base AS builder
 WORKDIR ${web}
 COPY --from=deps ${web}/node_modules ./node_modules
 COPY . .
-
-RUN npx vite build
+RUN yarn build
 
 FROM base AS runner
 WORKDIR ${web}
-
-COPY --from=builder ${web}/dist ./dist
+ENV NODE_ENV=production
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 vite
+RUN mkdir dist
+RUN chown vite:nodejs dist
+COPY --from=builder --chown=vite:nodejs ${web}/dist ./
 COPY package.json ./
-
-# RUN addgroup --system --gid 1001 nodejs
-# RUN adduser --system --uid 1001 nextjs
-# USER nextjs
-
+USER vite
 EXPOSE ${external_port}
 ENV PORT=${external_port}
-
-CMD ["npx", "vite", "preview", "--port", "3000", "--host"]
+CMD ["npx", "vite"]
