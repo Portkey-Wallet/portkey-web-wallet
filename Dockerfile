@@ -16,13 +16,12 @@ RUN yarn build
 FROM base AS runner
 WORKDIR ${web}
 ENV NODE_ENV=production
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 vite
+# RUN addgroup --system --gid 1001 nodejs
+# RUN adduser --system --uid 1001 vite
 RUN mkdir dist
-RUN chown vite:nodejs dist
-COPY --from=builder --chown=vite:nodejs ${web}/dist ./
-COPY package.json ./
-USER vite
+# RUN chown vite:nodejs dist
+COPY --from=builder . .
+# USER vite
 EXPOSE ${external_port}
 ENV PORT=${external_port}
 CMD ["npx", "vite"]
