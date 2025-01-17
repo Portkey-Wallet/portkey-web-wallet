@@ -21,9 +21,9 @@ WORKDIR ${web}
 COPY --from=builder ${web}/dist ./dist
 COPY package.json ./
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-USER nextjs
+# RUN addgroup --system --gid 1001 nodejs
+# RUN adduser --system --uid 1001 nextjs
+# USER nextjs
 
 EXPOSE ${external_port}
 ENV PORT=${external_port}
