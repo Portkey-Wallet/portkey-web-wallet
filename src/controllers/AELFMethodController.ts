@@ -74,7 +74,8 @@ export default class AELFMethodController {
     const managerAddress = await this.dappManager.currentManagerAddress();
 
     if (!chainInfo) return;
-    const contract: any = await this.getCaContract(chainInfo);
+    const contract = await this.getCaContract(chainInfo);
+    if (!contract) return;
 
     const rs = await contract.callViewMethod('IsManagerReadOnly', {
       caHash,
