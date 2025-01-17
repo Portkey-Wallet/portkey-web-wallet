@@ -30,13 +30,14 @@ import { clearManagerReadOnly } from '../utils/clearManagerReadOnly';
 import useVerifier from '../hooks/useVerifier';
 import useGuardianList from '../hooks/guardian';
 import { addGuardian } from '../utils/guardian';
+import './index.css';
 
 function WebPageInner() {
   const [{ pageState, pin, options }] = useWebWallet();
   console.log(pageState, 'pageState====');
   const dispatch = useWalletDispatch();
   const guardianListForLogin = JSON.parse(localStorage.getItem('guardianListForLogin') || '[]');
-
+  const isDarkMode = useMemo(() => options?.theme === 'dark', [options]);
   const { verifierList, getVerifierList } = useVerifier();
   const { currentGuardianList, getCurrentGuardianList } = useGuardianList();
 
@@ -133,9 +134,9 @@ function WebPageInner() {
   }, [getCurrentGuardianList, getVerifierList, pageState?.data?.caHash, pageState?.data?.originChainId]);
 
   return (
-    <div>
+    <div className='page-wrap' style={{ backgroundColor: 'var(--sds-color-background-default-default)'}}>
       <div
-        className="portkey-ui-flex portkey-ui-flex-center"
+        className="portkey-ui-flex portkey-ui-flex-center page-close-wrap"
         onClick={() => {
           if (pageState) {
             OpenPageService.closePage(
@@ -144,8 +145,7 @@ function WebPageInner() {
             );
           }
         }}>
-        <CustomSvg type="Close2" style={{ width: 30, height: 30 }} />
-        close page
+        <CustomSvg type="Close" strokeColor="var(--sds-color-icon-default-default)" style={{ width: 20, height: 20 }} />
       </div>
 
       {(pageState?.pageType === WalletPageType.Login || pageState?.pageType === WalletPageType.CustomLogin) && (
@@ -195,7 +195,7 @@ function WebPageInner() {
               faucet={{
                 faucetContractAddress: '233wFn5JbyD4i8R5Me4cW4z6edfFGRn5bpWnGuY8fjR7b2kRsD',
               }}
-              backIcon={null}
+              // backIcon={null}
               onDeleteAccount={async () => {
                 const wallet = await did.load(pin);
                 try {
