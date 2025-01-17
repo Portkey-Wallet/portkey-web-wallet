@@ -23,8 +23,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 #ARG APP_ENV
 #RUN echo "...Building for ${ENVIRONMENT} / ${APP_ENV}"
 # more standardised build script, refer to package.json
-RUN NODE_OPTIONS=--max-old-space-size=8192 \
-  npx yarn build
+RUN npx yarn build
 
 # Production image, copy all the files and run next
 FROM base AS runner
