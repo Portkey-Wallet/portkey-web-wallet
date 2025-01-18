@@ -21,13 +21,15 @@ RUN ls ${web}
 
 FROM base AS runner
 WORKDIR ${web}
-ENV NODE_ENV=production
 # RUN addgroup --system --gid 1001 nodejs
 # RUN adduser --system --uid 1001 vite
 # RUN mkdir dist
 # RUN chown vite:nodejs dist
-COPY --from=builder ${web}/* .
+COPY --from=builder ${web}/disk ./disk
+COPY package.json ./
+
+
 # USER vite
 EXPOSE ${external_port}
 ENV PORT=${external_port}
-CMD ["npx", "vite","--port","3000"]
+CMD ["npx", "serve", "dist", "--port", "3000"]
