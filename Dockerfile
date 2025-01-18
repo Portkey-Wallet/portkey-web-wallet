@@ -32,4 +32,4 @@ COPY --from=builder ${web}/node_modules ./node_modules
 # USER vite
 EXPOSE ${external_port}
 ENV PORT=${external_port}
-CMD ["npx", "serve", "dist", "--port", "3000"]
+CMD ["npx", "http-server", "dist", "--port", "3000"]
