@@ -25,7 +25,7 @@ WORKDIR ${web}
 # RUN adduser --system --uid 1001 vite
 # RUN mkdir dist
 # RUN chown vite:nodejs dist
-COPY --from=builder ${web}/disk ./disk
+COPY --from=builder ${web}/dist ./dist
 COPY package.json ./
 
 
