@@ -6,12 +6,18 @@ FROM base AS deps
 WORKDIR ${web}
 COPY package.json yarn.lock* package-lock.json* ./
 RUN yarn install --frozen-lockfile
+RUN pwd
+RUN ls ${web}
+
 
 FROM base AS builder
 WORKDIR ${web}
 COPY --from=deps ${web}/node_modules ./node_modules
 COPY . .
 RUN yarn build
+RUN pwd
+RUN ls ${web}
+
 
 FROM base AS runner
 WORKDIR ${web}
