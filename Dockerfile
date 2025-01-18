@@ -26,7 +26,7 @@ WORKDIR ${web}
 # RUN mkdir dist
 # RUN chown vite:nodejs dist
 COPY --from=builder ${web}/dist ./dist
-COPY package.json ./
+COPY --from=builder ${web}/node_modules ./node_modules
 
 
 # USER vite
