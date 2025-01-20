@@ -1,7 +1,7 @@
-import { useWebWallet } from '@portkey/connect-web-wallet';
 import { did, Unlock } from '@portkey/did-ui-react';
 import React, { useCallback, useMemo, useState } from 'react';
 import { getWebWalletStorageKey } from '../../utils/wallet';
+import { useWebWallet } from '@/context/WalletProvider';
 import './index.css';
 
 export interface IUnlockInnerProps {
