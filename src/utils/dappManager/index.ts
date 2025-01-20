@@ -30,8 +30,7 @@ export abstract class DappManager implements IDappManager {
   }
 
   getWallet() {
-    console.log('getWallet did', this.getDid());
-    return this.getDid()?.didWallet as DIDWallet<portkey.WalletAccount>;
+    return this.getDid()?.didWallet as unknown as DIDWallet<portkey.WalletAccount>;
   }
 
   async walletName(): Promise<string> {
@@ -71,6 +70,7 @@ export abstract class DappManager implements IDappManager {
       nickName: wallet?.aaInfo?.nickName,
       managerAddress: wallet?.managementAccount?.wallet?.address,
       managerPubkey: wallet?.managementAccount?.wallet?.keyPair.getPublic('hex'),
+      originChainId: wallet?.originChainId,
     };
   }
 
