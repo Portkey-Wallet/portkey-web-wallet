@@ -13,6 +13,7 @@ export interface IBaseDappManagerProps {
 
 export abstract class DappManager implements IDappManager {
   protected appId: string;
+
   constructor({ appId }: { appId: string }) {
     this.appId = appId;
   }
@@ -24,9 +25,19 @@ export abstract class DappManager implements IDappManager {
   getDid() {
     return did;
   }
+  isActive(): boolean {
+    return true;
+  }
+
+  async lockWallet() {
+    return this.getDid().reset();
+  }
   isLocked(): boolean {
-    console.log('=====isLocked', !did?.didWallet?.aaInfo?.accountInfo?.caHash);
     return Boolean(!did?.didWallet?.aaInfo?.accountInfo?.caHash);
+  }
+
+  isLogged() {
+    return Boolean(localStorage.getItem(getWebWalletStorageKey(this.appId)));
   }
 
   getWallet() {
@@ -50,10 +61,6 @@ export abstract class DappManager implements IDappManager {
 
   async getChainInfo(chainId: ChainId): Promise<ChainInfo | undefined> {
     return getChain(chainId);
-  }
-
-  isActive() {
-    return true;
   }
 
   // async updateManagerSyncState(chainId: ChainId) {
@@ -101,10 +108,6 @@ export abstract class DappManager implements IDappManager {
     const caInfo = res[0];
     originChainId = caInfo?.chainId as ChainId;
     return originChainId;
-  }
-
-  isLogged() {
-    return Boolean(localStorage.getItem(getWebWalletStorageKey(this.appId)));
   }
 
   async accounts() {

@@ -42,6 +42,7 @@ const aelfMethodList = [
   MethodsWallet.GET_WALLET_CURRENT_MANAGER_ADDRESS,
   MethodsWallet.GET_WALLET_MANAGER_SYNC_STATUS,
   MethodsWallet.GET_WALLET_TRANSACTION_SIGNATURE,
+  MethodsWallet.WALLET_LOCK,
 ];
 interface AELFMethodControllerProps {
   approvalController: ApprovalController;
@@ -216,6 +217,7 @@ export default class AELFMethodController {
       case MethodsBase.WALLET_INFO:
         this.getWalletInfo(sendResponse, message.payload);
         break;
+
       case MethodsWallet.GET_WALLET_SIGNATURE: {
         const isCipherText = checkIsCipherText(message.payload.payload.data);
         message.payload.payload.isCipherText = isCipherText;
@@ -251,6 +253,9 @@ export default class AELFMethodController {
         break;
       case MethodsWallet.GET_WALLET_MANAGER_SYNC_STATUS:
         this.getWalletManagerSyncStatus(sendResponse, message.payload);
+        break;
+      case MethodsWallet.WALLET_LOCK:
+        this.lockWallet(sendResponse, message.payload);
         break;
       default:
         sendResponse(
@@ -359,7 +364,6 @@ export default class AELFMethodController {
   getWalletState: RequestCommonHandler = async (sendResponse: SendResponseFun, message) => {
     try {
       let data: any = {
-        isUnlocked: !this.dappManager.isLocked(),
         isConnected: !this.dappManager.isLocked(),
         isLogged: this.dappManager.isLogged(),
       };
@@ -790,6 +794,21 @@ export default class AELFMethodController {
     try {
       const caHash = await this.dappManager.caHash();
       sendResponse({ ...errorHandler(0), data: caHash });
+    } catch (error) {
+      console.log('getCAHash===', error);
+      sendResponse({
+        ...errorHandler(100001),
+        data: {
+          code: ResponseCode.INTERNAL_ERROR,
+        },
+      });
+    }
+  };
+
+  lockWallet: RequestCommonHandler = async sendResponse => {
+    try {
+      const result = await this.dappManager.lockWallet();
+      sendResponse({ ...errorHandler(0), data: result });
     } catch (error) {
       console.log('getCAHash===', error);
       sendResponse({
