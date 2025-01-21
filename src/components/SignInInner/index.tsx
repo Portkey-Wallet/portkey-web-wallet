@@ -4,7 +4,7 @@ import {
   DIDWalletInfo,
   IGuardianIdentifierInfo,
   ISignIn,
-  Loading,
+  // Loading,
   SignIn,
   TOnSuccessExtraData,
   TStep1LifeCycle,
@@ -276,10 +276,10 @@ export default function SignInInner({ onLoginErrorCb }: { onLoginErrorCb: () => 
     return true;
   }, [currentLifeCircle, pageState?.pageType]);
 
-  const showPageLoading = useMemo(
-    () => pageState?.pageType === WalletPageType.CustomLogin && Object.keys(currentLifeCircle).length === 0,
-    [currentLifeCircle, pageState?.pageType],
-  );
+  // const showPageLoading = useMemo(
+  //   () => pageState?.pageType === WalletPageType.CustomLogin && Object.keys(currentLifeCircle).length === 0,
+  //   [currentLifeCircle, pageState?.pageType],
+  // );
 
   return (
     <div>
@@ -299,7 +299,7 @@ export default function SignInInner({ onLoginErrorCb }: { onLoginErrorCb: () => 
           }}
         />
       )}
-      {showPageLoading && <Loading />}
+      {/* {showPageLoading && <Loading />} */}
     </div>
   );
 }
