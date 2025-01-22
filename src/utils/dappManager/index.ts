@@ -85,6 +85,7 @@ export abstract class DappManager implements IDappManager {
   async getHolderInfoByManager() {
     const wallet = this.getWallet();
     if (this.AAInfo && this.AAInfo.length >= 2) return this.AAInfo;
+    if (!wallet.managementAccount?.address && !wallet.aaInfo.accountInfo?.caHash) return [];
     const res = await did.services.getHolderInfoByManager({
       manager: wallet.managementAccount?.address,
       caHash: wallet.aaInfo.accountInfo?.caHash,
