@@ -1,11 +1,4 @@
-import {
-  MethodsBase,
-  ResponseCode,
-  MethodsWallet,
-  ChainId,
-  NetworkType,
-  IRequestParams,
-} from '@portkey/provider-types';
+import { MethodsBase, ResponseCode, MethodsWallet, ChainId, NetworkType } from '@portkey/provider-types';
 import { RequestCommonHandler, SendResponseFun } from '../service/types';
 import { IRequestPayload, WalletPageType } from '../types';
 import errorHandler from '../utils/errorHandler';

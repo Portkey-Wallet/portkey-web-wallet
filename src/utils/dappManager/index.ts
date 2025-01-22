@@ -7,6 +7,7 @@ import { wallet as walletUtils } from '@portkey/utils';
 import { Accounts, ChainId, ChainsInfo } from '@portkey/provider-types';
 import { getChainInfoMap } from '../chainInfo';
 import { getWebWalletStorageKey } from '../wallet';
+import { addressFormat } from '../account';
 export interface IBaseDappManagerProps {
   pin: string;
 }
@@ -90,7 +91,6 @@ export abstract class DappManager implements IDappManager {
       maxResultCount: 2,
       // chainId: wallet.originChainId,
     } as unknown as GetCAHolderByManagerParams);
-    console.log(res, 'res===getHolderInfoByManager');
     return res
       .filter(item => item.caAddress)
       .map(item => ({
@@ -111,16 +111,24 @@ export abstract class DappManager implements IDappManager {
   }
 
   async accounts() {
-    console.log(did.didWallet, 'accounts==');
     const chains = await this.chainIds();
     const caAddress = (await this.getAAInfo()).accountInfo?.caAddress;
-    if (caAddress) return chains.map(item => ({ [item]: caAddress })) as Accounts;
-    const res = await this.getHolderInfoByManager();
-    return res
-      .filter(item => !!item.chainId)
-      .map(item => ({
-        [item.chainId as ChainId]: walletUtils.removeELFAddressSuffix(item.caAddress as string),
-      })) as Accounts;
+    const accountsMap: Accounts = {};
+    if (caAddress) {
+      chains.forEach(item => {
+        accountsMap[item] = [addressFormat(caAddress, item)];
+      });
+    } else {
+      const res = await this.getHolderInfoByManager();
+      res
+        .filter(item => !!item.chainId)
+        .forEach(item => {
+          accountsMap[item.chainId] = [
+            addressFormat(walletUtils.removeELFAddressSuffix(item.caAddress as string), item.chainId),
+          ];
+        });
+    }
+    return accountsMap;
   }
 
   async chainId() {
@@ -133,8 +141,11 @@ export abstract class DappManager implements IDappManager {
   async chainsInfo() {
     const chainsInfo: ChainsInfo = {};
     Object.values(await getChainInfoMap())?.forEach(chainInfo => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const tmpChainInfo: any = { ...chainInfo };
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       tmpChainInfo.lastModifyTime && delete tmpChainInfo.lastModifyTime;
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       tmpChainInfo.id && delete tmpChainInfo.id;
       chainsInfo[chainInfo.chainId] = [tmpChainInfo];
     });
