@@ -2,9 +2,9 @@ import { isNotificationEvents } from '@portkey/providers';
 import { PortkeyResultType } from '../types/error';
 import { WalletPageType } from '../types';
 import { OpenPageService } from '../service/OpenPageService';
-import { did } from '@portkey/did';
 import errorHandler from '../utils/errorHandler';
 import { getWebWalletStorageKey } from '../utils/wallet';
+import { did } from '@portkey/did-ui-react';
 export default class PermissionController {
   whitelist: string[];
   appId: string;
@@ -58,7 +58,7 @@ export default class PermissionController {
       };
     // Not yet registered or logged in
     return OpenPageService.openPage({
-      pageType: !!payload?.payload ? WalletPageType.CustomLogin : WalletPageType.Login,
+      pageType: payload?.payload ? WalletPageType.CustomLogin : WalletPageType.Login,
       data: payload,
     });
   }
