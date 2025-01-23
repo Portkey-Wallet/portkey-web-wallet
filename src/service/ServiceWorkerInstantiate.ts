@@ -17,6 +17,7 @@ const permissionWhitelist = [
   MethodsBase.CHAIN_IDS,
   MethodsBase.CHAINS_INFO,
   MethodsBase.WALLET_INFO,
+  MethodsBase.NETWORK,
   MethodsWallet.GET_WALLET_STATE,
   MethodsWallet.WALLET_LOCK,
 ];
