@@ -11,6 +11,7 @@ import {
   formatGuardianValue,
   ManagerApproveInner,
   UserGuardianStatus,
+  IGuardiansApproved,
 } from '@portkey/did-ui-react';
 import { ChainId } from '@portkey/types';
 import { useWebWallet, WalletProvider } from '../context/WalletProvider';
@@ -125,11 +126,14 @@ function WebPageInner() {
     [getCurrentGuardianList, pageState],
   );
 
-  const finishSetAllowance = useCallback(() => {
-    if (pageState) {
-      OpenPageService.closePage(pageState.eventName, { error: 0, data: { status: true } });
-    }
-  }, [pageState]);
+  const finishSetAllowance = useCallback(
+    (guardiansApproved: IGuardiansApproved[]) => {
+      if (pageState) {
+        OpenPageService.closePage(pageState.eventName, { error: 0, data: { status: true, guardiansApproved } });
+      }
+    },
+    [pageState],
+  );
 
   useEffect(() => {
     if (pageState?.data?.originChainId || pageState?.data?.caHash) {

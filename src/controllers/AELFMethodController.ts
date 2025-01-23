@@ -155,8 +155,8 @@ export default class AELFMethodController {
       });
     }
 
-    const { guardiansApproved, approveInfo } = data;
-    const finallyApproveSymbol = this.config?.batchApproveNFT ? getApproveSymbol(approveInfo.symbol) : symbol;
+    const { guardiansApproved } = data;
+    const finallyApproveSymbol = this.config?.batchApproveNFT ? getApproveSymbol(symbol) : symbol;
 
     return this.sendTransaction(sendResponse, {
       ...payload,
@@ -165,9 +165,9 @@ export default class AELFMethodController {
       params: {
         paramsOption: {
           caHash,
-          spender: approveInfo.spender,
+          spender: spender,
           symbol: finallyApproveSymbol,
-          amount: approveInfo.amount,
+          amount: amount,
           guardiansApproved: getGuardiansApprovedByApprove(guardiansApproved),
         },
       },
