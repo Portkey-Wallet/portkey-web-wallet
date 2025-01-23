@@ -125,6 +125,12 @@ function WebPageInner() {
     [getCurrentGuardianList, pageState],
   );
 
+  const finishSetAllowance = useCallback(() => {
+    if (pageState) {
+      OpenPageService.closePage(pageState.eventName, { error: 0, data: { status: true } });
+    }
+  }, [pageState]);
+
   useEffect(() => {
     if (pageState?.data?.originChainId || pageState?.data?.caHash) {
       getVerifierList(pageState?.data?.originChainId);
@@ -186,6 +192,7 @@ function WebPageInner() {
               originChainId={pageState.data.originChainId}
               targetChainId={pageState.data.targetChainId}
               networkType={pageState.data.networkType}
+              onFinish={finishSetAllowance}
             />
           )}
 
