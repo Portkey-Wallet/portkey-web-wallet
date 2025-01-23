@@ -32,6 +32,7 @@ const aelfMethodList = [
   MethodsBase.NETWORK,
   MethodsWallet.GET_WALLET_STATE,
   MethodsWallet.GET_WALLET_NAME,
+  MethodsWallet.GET_WALLET_AVATAR,
   MethodsWallet.GET_WALLET_CURRENT_MANAGER_ADDRESS,
   MethodsWallet.GET_WALLET_MANAGER_SYNC_STATUS,
   MethodsWallet.GET_WALLET_TRANSACTION_SIGNATURE,
@@ -241,6 +242,9 @@ export default class AELFMethodController {
         this.getWalletName(sendResponse, message.payload);
         break;
 
+      case MethodsWallet.GET_WALLET_AVATAR:
+        this.getWalletAvatar(sendResponse, message.payload);
+        break;
       case MethodsWallet.GET_WALLET_CURRENT_MANAGER_ADDRESS:
         this.getCurrentManagerAddress(sendResponse, message.payload);
         break;
@@ -354,6 +358,29 @@ export default class AELFMethodController {
     }
   };
 
+  getWalletAvatar: RequestCommonHandler = async (sendResponse: SendResponseFun, message) => {
+    try {
+      // TODO: change
+      const isLocked = await this.dappManager.isLocked();
+      if (isLocked)
+        return sendResponse({
+          ...errorHandler(400001),
+          data: {
+            code: ResponseCode.UNAUTHENTICATED,
+          },
+        });
+
+      sendResponse({ ...errorHandler(0), data: await this.dappManager.walletAvatar() });
+    } catch (error) {
+      sendResponse({
+        ...errorHandler(500001),
+        data: {
+          code: ResponseCode.INTERNAL_ERROR,
+        },
+      });
+    }
+  };
+
   getWalletState: RequestCommonHandler = async (sendResponse: SendResponseFun, message) => {
     try {
       let data: any = {
@@ -404,6 +431,9 @@ export default class AELFMethodController {
 
   getChainId: RequestCommonHandler = async sendResponse => {
     try {
+      const result = await this.dappManager.getHolderInfoByManager();
+      console.log('getHolderInfoByManager', result);
+
       const chainId = await this.dappManager.chainId();
       sendResponse({ ...errorHandler(0), data: chainId });
     } catch (error) {

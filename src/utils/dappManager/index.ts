@@ -46,9 +46,19 @@ export abstract class DappManager implements IDappManager {
   }
 
   async walletName(): Promise<string> {
-    const currentAAInfo = await this.getAAInfo();
+    const wallet = this.getWallet();
+    const originChainId = await this.getOriginChainId();
+    const result = await wallet.getCAHolderInfo(originChainId);
 
-    return currentAAInfo.nickName || '';
+    return result?.nickName;
+  }
+
+  async walletAvatar() {
+    const wallet = this.getWallet();
+    const originChainId = await this.getOriginChainId();
+    const result = await wallet.getCAHolderInfo(originChainId);
+    // TODO: update sdk version
+    return result?.avatar;
   }
 
   async currentManagerAddress(): Promise<string | undefined> {
@@ -92,6 +102,7 @@ export abstract class DappManager implements IDappManager {
       maxResultCount: 2,
       // chainId: wallet.originChainId,
     } as unknown as GetCAHolderByManagerParams);
+
     return res
       .filter(item => item.caAddress)
       .map(item => ({

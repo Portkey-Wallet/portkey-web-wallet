@@ -12,9 +12,9 @@
   "dependencies": {
     "@portkey/did": "2.19.0-alpha.9",
     "@portkey/did-ui-react": "2.19.0-alpha.11",
-    "@portkey/iframe-provider": "^2.4.0-alpha.8",
+    "@portkey/iframe-provider": "^2.4.0-alpha.9",
     "@portkey/onboarding": "2.19.0-alpha.9",
-    "@portkey/provider-types": "^2.4.0-alpha.8",
+    "@portkey/provider-types": "^2.4.0-alpha.9",
     "@types/qs": "^6.9.18",
     "aelf-sdk": "^3.4.7",
     "antd": "4.24.14",

@@ -1035,13 +1035,13 @@
     "@portkey/utils" "^2.19.0-alpha.9"
     "@portkey/validator" "^2.19.0-alpha.9"
 
-"@portkey/chain@^2.4.0-alpha.8":
-  version "2.4.0-alpha.8"
-  resolved "https://registry.yarnpkg.com/@portkey/chain/-/chain-2.4.0-alpha.8.tgz#d1d2dd0ec31b45ceee94b0e54fe197d37d3025c0"
-  integrity sha512-4BSGxsNhwKbqYLONeyTOinz9YxRfpfcO7RjhGa1PspgmN2AcjVfhUZ928APDS7fT/Drzwy/Agi/yDAJUQN+EFA==
+"@portkey/chain@^2.4.0-alpha.9":
+  version "2.4.0-alpha.9"
+  resolved "https://registry.yarnpkg.com/@portkey/chain/-/chain-2.4.0-alpha.9.tgz#78aee07250c50bad8ad6f939a93338190b67ad31"
+  integrity sha512-q86hhx46TghZsgjMH3EwWP2rqt8djpcuS3lk1SIk3tE34EeWmj0DcGKsr/Z0c0+bL/tc0IYoHZDjn6jtXUfqTA==
   dependencies:
     "@portkey/contracts" "^2.0.4"
-    "@portkey/provider-types" "^2.4.0-alpha.8"
+    "@portkey/provider-types" "^2.4.0-alpha.9"
     aelf-sdk "^3.2.45-beta.0"
 
 "@portkey/contracts@^2.0.4":
@@ -1164,13 +1164,13 @@
     graphql "^16.6.0"
     subscriptions-transport-ws "^0.11.0"
 
-"@portkey/iframe-provider@^2.4.0-alpha.8":
-  version "2.4.0-alpha.8"
-  resolved "https://registry.yarnpkg.com/@portkey/iframe-provider/-/iframe-provider-2.4.0-alpha.8.tgz#68c0b11059121e785ca5ddd452937c7a1ee18f2f"
-  integrity sha512-QAOJ0mHIGGnuVKUI7Q+OrR48ShXo0L7BfPNNaVu9ejiKtaeAEdXLS2tnYmzVNDOdHP3sNoZgTYZ4tB6ZSfXUbQ==
+"@portkey/iframe-provider@^2.4.0-alpha.9":
+  version "2.4.0-alpha.9"
+  resolved "https://registry.yarnpkg.com/@portkey/iframe-provider/-/iframe-provider-2.4.0-alpha.9.tgz#160e7e9866833bb4a76d690070ad4a1a998a0ef4"
+  integrity sha512-U5YjqHcI1ef8ulzisk1SIcmcIW39b4ifinmC5L0+s48eB51cKNsxbu6fk63zy6Akw56D5lt8b6o6AJusLswd4Q==
   dependencies:
-    "@portkey/provider-types" "^2.4.0-alpha.8"
-    "@portkey/providers" "^2.4.0-alpha.8"
+    "@portkey/provider-types" "^2.4.0-alpha.9"
+    "@portkey/providers" "^2.4.0-alpha.9"
     "@types/elliptic" "^6.4.14"
     readable-stream "^4.4.0"
 
@@ -1212,21 +1212,29 @@
     "@portkey/types" "^2.0.0-alpha.0"
     "@types/readable-stream" "^2.3.15"
 
-"@portkey/provider-utils@^2.4.0-alpha.8":
-  version "2.4.0-alpha.8"
-  resolved "https://registry.yarnpkg.com/@portkey/provider-utils/-/provider-utils-2.4.0-alpha.8.tgz#6855884f26b0ae72565a72a3556ffec1a4f57b02"
-  integrity sha512-eJxUAigtc8F+ynkzR9NXz7IldA7Fqi0ULDC8/lAYfRS2WkB/ZgnfsUVi0l2UCL3NyY4bOD0MdJzIgy7+3IgEWw==
+"@portkey/provider-types@^2.4.0-alpha.9":
+  version "2.4.0-alpha.9"
+  resolved "https://registry.yarnpkg.com/@portkey/provider-types/-/provider-types-2.4.0-alpha.9.tgz#005c4cb6d6ce87b5bcfeabd7711062095a6fb474"
+  integrity sha512-wyI9KrFxwJclPUiupbtMC+E6JMh24TNbrCcE4odolPQeWHtZzGzjIN5y+6pZPHKBHYLWDXQ91ZolFDT1hCOCKw==
   dependencies:
-    "@portkey/provider-types" "^2.4.0-alpha.8"
+    "@portkey/types" "^2.0.0-alpha.0"
+    "@types/readable-stream" "^2.3.15"
 
-"@portkey/providers@^2.4.0-alpha.8":
-  version "2.4.0-alpha.8"
-  resolved "https://registry.yarnpkg.com/@portkey/providers/-/providers-2.4.0-alpha.8.tgz#4bfc833dab86fbf7bd9536dfbe05ad38e7d49254"
-  integrity sha512-Vgx3sr+14RABMtY5kvRxuP62IiAGIvb0h6GqWZEe+2SyLKiNPqagpdeMTPPDjV5jUl7n4mA779uVyp0GuXBKAg==
+"@portkey/provider-utils@^2.4.0-alpha.9":
+  version "2.4.0-alpha.9"
+  resolved "https://registry.yarnpkg.com/@portkey/provider-utils/-/provider-utils-2.4.0-alpha.9.tgz#fd7e0a3a1dde6b2a5ba98d5f169269be7764867d"
+  integrity sha512-FVCn+Q7x1YN5vJE1PXDw4VvIJzHS+Az18keQ8/4dkrFhyJ66XQpzb3qeFIs3FY8ceyc2G2doULkU7MRxUVvLbA==
   dependencies:
-    "@portkey/chain" "^2.4.0-alpha.8"
-    "@portkey/provider-types" "^2.4.0-alpha.8"
-    "@portkey/provider-utils" "^2.4.0-alpha.8"
+    "@portkey/provider-types" "^2.4.0-alpha.9"
+
+"@portkey/providers@^2.4.0-alpha.9":
+  version "2.4.0-alpha.9"
+  resolved "https://registry.yarnpkg.com/@portkey/providers/-/providers-2.4.0-alpha.9.tgz#4d402806a823a1fedc921e741e91b88b00b4d2b3"
+  integrity sha512-QrMvZfgKvupkmzldrVPcqwfVLD881U8V5/XIWg521XQlgLd4VyQheM1BLzJZJTT4PwjZUmHSXmwlihEnCSLHiQ==
+  dependencies:
+    "@portkey/chain" "^2.4.0-alpha.9"
+    "@portkey/provider-types" "^2.4.0-alpha.9"
+    "@portkey/provider-utils" "^2.4.0-alpha.9"
     "@types/readable-stream" "^2.3.15"
     lodash "^4.17.21"
     readable-stream "^4.4.0"
