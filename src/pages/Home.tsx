@@ -37,7 +37,6 @@ function WebPageInner() {
   console.log(pageState, 'pageState====');
   const dispatch = useWalletDispatch();
   const guardianListForLogin = JSON.parse(localStorage.getItem('guardianListForLogin') || '[]');
-  const isDarkMode = useMemo(() => options?.theme === 'dark', [options]);
   const { verifierList, getVerifierList } = useVerifier();
   const { currentGuardianList, getCurrentGuardianList } = useGuardianList();
 
