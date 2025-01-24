@@ -158,7 +158,7 @@ export default class AELFMethodController {
     const { guardiansApproved } = data;
     const finallyApproveSymbol = this.config?.batchApproveNFT ? getApproveSymbol(symbol) : symbol;
 
-    return this.sendTransaction(sendResponse, {
+    return this.handleTransaction(sendResponse, {
       ...payload,
       method: ApproveMethod.ca,
       contractAddress: chainInfo?.caContractAddress,
@@ -510,6 +510,58 @@ export default class AELFMethodController {
     }
   };
 
+  handleTransaction: RequestCommonHandler = async (sendResponse, message) => {
+    try {
+      if (!message?.payload?.params)
+        return sendResponse({ ...errorHandler(400001), data: { code: ResponseCode.ERROR_IN_PARAMS } });
+
+      const { payload } = message;
+      console.log(message, 'message====sendTransaction');
+      const chainInfo = await this.dappManager.getChainInfo(payload.chainId);
+      const caHash = await this.dappManager.caHash();
+
+      if (!chainInfo) return;
+      if (!CA_METHOD_WHITELIST.includes(payload.method))
+        return sendResponse({
+          ...errorHandler(400001),
+          data: {
+            code: ResponseCode.CONTRACT_ERROR,
+            msg: 'The current method is not supported',
+          },
+        });
+
+      // transfer start
+      const contract: any = await this.getCaContract(chainInfo);
+      if (!contract) return;
+      const isForward = chainInfo.caContractAddress !== payload.contractAddress;
+
+      let paramsOption = (payload.params as { paramsOption: object }).paramsOption,
+        functionName = payload.method;
+
+      if (isForward) {
+        paramsOption = {
+          caHash,
+          methodName: payload.method,
+          contractAddress: payload.contractAddress,
+          args: paramsOption,
+        };
+        functionName = 'ManagerForwardCall';
+      }
+
+      const data = await contract!.callSendMethod(functionName, '', paramsOption, { onMethod: 'transactionHash' });
+      //  transfer finish
+      sendResponse({ ...errorHandler(0), data });
+    } catch (error) {
+      console.log('sendTransaction===', error);
+      sendResponse({
+        ...errorHandler(100001),
+        data: {
+          code: ResponseCode.INTERNAL_ERROR,
+        },
+      });
+    }
+  };
+
   sendTransaction: RequestCommonHandler = async (sendResponse, message) => {
     try {
       if (!message?.payload?.params)
@@ -613,8 +665,6 @@ export default class AELFMethodController {
         chainId: payload.chainId,
       });
 
-      console.log('isApprove', isApprove);
-
       const key = randomId();
       if (isApprove) {
         if (payload?.params?.paramsOption.symbol == '*') {
@@ -622,42 +672,9 @@ export default class AELFMethodController {
         }
         const _config = this.config?.[origin];
         return this.handleApprove(sendResponse, message);
-      } else {
-        const isForward = chainInfo?.caContractAddress !== payload.contractAddress;
-        const method = isForward ? 'ManagerForwardCall' : payload?.method;
-
-        if (!CA_METHOD_WHITELIST.includes(method))
-          return sendResponse({
-            ...errorHandler(400001),
-            data: {
-              code: ResponseCode.CONTRACT_ERROR,
-              msg: 'The current method is not supported',
-            },
-          });
       }
 
-      // transfer start
-      const contract: any = await this.getCaContract(chainInfo);
-      if (!contract) return;
-      const isForward = chainInfo.caContractAddress !== payload.contractAddress;
-
-      let paramsOption = (payload.params as { paramsOption: object }).paramsOption,
-        functionName = payload.method;
-
-      if (isForward) {
-        paramsOption = {
-          caHash,
-          methodName: payload.method,
-          contractAddress: payload.contractAddress,
-          args: paramsOption,
-        };
-        functionName = 'ManagerForwardCall';
-      }
-
-      const data = await contract!.callSendMethod(functionName, '', paramsOption, { onMethod: 'transactionHash' });
-      //  transfer finish
-
-      sendResponse({ ...errorHandler(0), data });
+      this.handleTransaction(sendResponse, message);
     } catch (error) {
       console.log('sendTransaction===', error);
       sendResponse({
