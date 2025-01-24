@@ -127,7 +127,7 @@ function WebPageInner() {
   );
 
   const finishSetAllowance = useCallback(
-    (guardiansApproved: IGuardiansApproved[]) => {
+    ({guardiansApproved}:{ guardiansApproved : IGuardiansApproved[]) => {
       if (pageState) {
         OpenPageService.closePage(pageState.eventName, { error: 0, data: { status: true, guardiansApproved } });
       }
