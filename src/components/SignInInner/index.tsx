@@ -36,7 +36,7 @@ export default function SignInInner({ onLoginErrorCb }: { onLoginErrorCb: () => 
   const extraDataRef = useRef<TOnSuccessExtraData>();
   const dispatch = useWalletDispatch();
   const { getRecommendationVerifier, verifySocialToken } = useVerifier();
-  const [design, setDesign] = useState<SignInProps['design']>('Web2Design');
+  const [design, setDesign] = useState<SignInProps['design']>(options?.design);
   const [currentLifeCircle, setCurrentLifeCircle] = useState<
     TStep2SignInLifeCycle | TStep1LifeCycle | TStep3LifeCycle | TStep2SignUpLifeCycle
   >({});
@@ -278,12 +278,11 @@ export default function SignInInner({ onLoginErrorCb }: { onLoginErrorCb: () => 
       }
       if (otherLoginType === 'Email') {
         setDesign('Web2Design');
-        setCurrentLifeCircle({ 'Login': undefined });
+        setCurrentLifeCircle({ Login: undefined });
         setTimeout(() => {
           ref.current?.setOpen(true);
         }, 500);
         return;
-
       }
     }
   }, [pageState, signHandle]);
@@ -305,7 +304,7 @@ export default function SignInInner({ onLoginErrorCb }: { onLoginErrorCb: () => 
         <SignIn
           ref={ref}
           keyboard={true}
-          design={design || options?.design}
+          design={design }
           uiType={'Full'}
           defaultChainId={options?.networkType === 'MAINNET' ? 'tDVV' : 'tDVW'}
           defaultLifeCycle={currentLifeCircle}
