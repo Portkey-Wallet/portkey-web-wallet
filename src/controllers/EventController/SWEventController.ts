@@ -34,7 +34,7 @@ export default class SWEventController {
     return true;
   }
 
-  public static check(eventName: string, data: unknown): boolean {
+  public static check(eventName: string, data: any): boolean {
     return SWEventController.checkEventMethod(eventName) && SWEventController.checkDispatchEventParams(data);
   }
 

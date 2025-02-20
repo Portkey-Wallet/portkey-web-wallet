@@ -7,12 +7,14 @@ import { wallet as walletUtils } from '@portkey/utils';
 import { Accounts, ChainId, ChainsInfo } from '@portkey/provider-types';
 import { getChainInfoMap } from '../chainInfo';
 import { getWebWalletStorageKey } from '../wallet';
+import { addressFormat } from '../account';
 export interface IBaseDappManagerProps {
   pin: string;
 }
 
 export abstract class DappManager implements IDappManager {
   protected appId: string;
+
   constructor({ appId }: { appId: string }) {
     this.appId = appId;
   }
@@ -24,20 +26,39 @@ export abstract class DappManager implements IDappManager {
   getDid() {
     return did;
   }
+  isActive(): boolean {
+    return true;
+  }
+
+  async lockWallet() {
+    return this.getDid().reset();
+  }
   isLocked(): boolean {
-    console.log('=====isLocked', !did?.didWallet?.aaInfo?.accountInfo?.caHash);
     return Boolean(!did?.didWallet?.aaInfo?.accountInfo?.caHash);
   }
 
+  isLogged() {
+    return Boolean(localStorage.getItem(getWebWalletStorageKey(this.appId)));
+  }
+
   getWallet() {
-    console.log('getWallet did', this.getDid());
-    return this.getDid()?.didWallet as DIDWallet<portkey.WalletAccount>;
+    return this.getDid()?.didWallet as unknown as DIDWallet<portkey.WalletAccount>;
   }
 
   async walletName(): Promise<string> {
-    const currentAAInfo = await this.getAAInfo();
+    const wallet = this.getWallet();
+    const originChainId = await this.getOriginChainId();
+    const result = await wallet.getCAHolderInfo(originChainId);
 
-    return currentAAInfo.nickName || '';
+    return result?.nickName;
+  }
+
+  async walletAvatar() {
+    const wallet = this.getWallet();
+    const originChainId = await this.getOriginChainId();
+    const result = await wallet.getCAHolderInfo(originChainId);
+    // TODO: update sdk version
+    return result?.avatar;
   }
 
   async currentManagerAddress(): Promise<string | undefined> {
@@ -51,10 +72,6 @@ export abstract class DappManager implements IDappManager {
 
   async getChainInfo(chainId: ChainId): Promise<ChainInfo | undefined> {
     return getChain(chainId);
-  }
-
-  isActive() {
-    return true;
   }
 
   // async updateManagerSyncState(chainId: ChainId) {
@@ -71,19 +88,21 @@ export abstract class DappManager implements IDappManager {
       nickName: wallet?.aaInfo?.nickName,
       managerAddress: wallet?.managementAccount?.wallet?.address,
       managerPubkey: wallet?.managementAccount?.wallet?.keyPair.getPublic('hex'),
+      originChainId: wallet?.originChainId,
     };
   }
 
   async getHolderInfoByManager() {
     const wallet = this.getWallet();
     if (this.AAInfo && this.AAInfo.length >= 2) return this.AAInfo;
+    if (!wallet.managementAccount?.address && !wallet.aaInfo.accountInfo?.caHash) return [];
     const res = await did.services.getHolderInfoByManager({
       manager: wallet.managementAccount?.address,
       caHash: wallet.aaInfo.accountInfo?.caHash,
       maxResultCount: 2,
       // chainId: wallet.originChainId,
     } as unknown as GetCAHolderByManagerParams);
-    console.log(res, 'res===getHolderInfoByManager');
+
     return res
       .filter(item => item.caAddress)
       .map(item => ({
@@ -103,21 +122,25 @@ export abstract class DappManager implements IDappManager {
     return originChainId;
   }
 
-  isLogged() {
-    return Boolean(localStorage.getItem(getWebWalletStorageKey(this.appId)));
-  }
-
   async accounts() {
-    console.log(did.didWallet, 'accounts==');
     const chains = await this.chainIds();
     const caAddress = (await this.getAAInfo()).accountInfo?.caAddress;
-    if (caAddress) return chains.map(item => ({ [item]: caAddress })) as Accounts;
-    const res = await this.getHolderInfoByManager();
-    return res
-      .filter(item => !!item.chainId)
-      .map(item => ({
-        [item.chainId as ChainId]: walletUtils.removeELFAddressSuffix(item.caAddress as string),
-      })) as Accounts;
+    const accountsMap: Accounts = {};
+    if (caAddress) {
+      chains.forEach(item => {
+        accountsMap[item] = [addressFormat(caAddress, item)];
+      });
+    } else {
+      const res = await this.getHolderInfoByManager();
+      res
+        .filter(item => !!item.chainId)
+        .forEach(item => {
+          accountsMap[item.chainId] = [
+            addressFormat(walletUtils.removeELFAddressSuffix(item.caAddress as string), item.chainId),
+          ];
+        });
+    }
+    return accountsMap;
   }
 
   async chainId() {
@@ -130,8 +153,11 @@ export abstract class DappManager implements IDappManager {
   async chainsInfo() {
     const chainsInfo: ChainsInfo = {};
     Object.values(await getChainInfoMap())?.forEach(chainInfo => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const tmpChainInfo: any = { ...chainInfo };
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       tmpChainInfo.lastModifyTime && delete tmpChainInfo.lastModifyTime;
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       tmpChainInfo.id && delete tmpChainInfo.id;
       chainsInfo[chainInfo.chainId] = [tmpChainInfo];
     });

@@ -1,6 +1,7 @@
-import { NetworkType, ThemeType } from '@portkey/did-ui-react';
+import { NetworkType, SignInProps, ThemeType } from '@portkey/did-ui-react';
 import { IPageState } from '../types';
 import { basicActions } from '../utils';
+import { ILoginConfig } from '@portkey/did-ui-react/dist/_types/src/components/config-provider/types';
 
 export const WebWalletActions = {
   setWalletPageState: 'SET_WALLET_PAGE_STATE',
@@ -20,6 +21,8 @@ export interface IWalletOptions {
   networkType: NetworkType;
   appId: string;
   isTelegram?: boolean;
+  loginConfig?: ILoginConfig;
+  design?: SignInProps['design'];
 }
 
 export const basicWebWalletView = {

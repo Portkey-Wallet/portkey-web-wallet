@@ -4,8 +4,8 @@ import {
   DIDWalletInfo,
   IGuardianIdentifierInfo,
   ISignIn,
-  Loading,
   SignIn,
+  SignInProps,
   TOnSuccessExtraData,
   TStep1LifeCycle,
   TStep2SignInLifeCycle,
@@ -28,7 +28,7 @@ import { OperationTypeEnum, SocialLoginType, TSignUpVerifier, WalletPageType } f
 import useVerifier from '../../hooks/useVerifier';
 import { ChainId } from '@portkey/provider-types';
 
-let CHAIN_ID: ChainId = 'tDVW';
+const CHAIN_ID: ChainId = 'tDVW';
 
 export default function SignInInner({ onLoginErrorCb }: { onLoginErrorCb: () => void }) {
   const ref = useRef<ISignIn>();
@@ -36,6 +36,7 @@ export default function SignInInner({ onLoginErrorCb }: { onLoginErrorCb: () => 
   const extraDataRef = useRef<TOnSuccessExtraData>();
   const dispatch = useWalletDispatch();
   const { getRecommendationVerifier, verifySocialToken } = useVerifier();
+  const [design, setDesign] = useState<SignInProps['design']>(options?.design);
   const [currentLifeCircle, setCurrentLifeCircle] = useState<
     TStep2SignInLifeCycle | TStep1LifeCycle | TStep3LifeCycle | TStep2SignUpLifeCycle
   >({});
@@ -43,11 +44,13 @@ export default function SignInInner({ onLoginErrorCb }: { onLoginErrorCb: () => 
   const beforeCreatePending = useCallback(() => {
     if (options?.isTelegram && extraDataRef.current?.originChainId) {
       dispatch(basicWebWalletView.setWalletPin.actions(DEFAULT_PIN));
-      pageState && OpenPageService.closePage(pageState.eventName, { error: 0 });
-      SWEventController.dispatchEvent({
-        eventName: 'connected',
-        data: { chainIds: [extraDataRef.current.originChainId] },
-      });
+      if (pageState) {
+        OpenPageService.closePage(pageState.eventName, { error: 0 });
+        SWEventController.dispatchEvent({
+          eventName: 'connected',
+          data: { chainIds: [extraDataRef.current.originChainId] },
+        });
+      }
     }
   }, [dispatch, options?.isTelegram, pageState]);
 
@@ -58,7 +61,9 @@ export default function SignInInner({ onLoginErrorCb }: { onLoginErrorCb: () => 
       }
       if (options?.isTelegram) {
         did.save(DEFAULT_PIN, getWebWalletStorageKey(options?.appId));
-        pageState && OpenPageService.closePage(pageState.eventName, { error: 0 });
+        if (pageState) {
+          OpenPageService.closePage(pageState.eventName, { error: 0 });
+        }
         SWEventController.dispatchEvent({
           eventName: 'connected',
           data: { chainIds: [createPendingInfo.didWallet?.chainId] },
@@ -71,7 +76,9 @@ export default function SignInInner({ onLoginErrorCb }: { onLoginErrorCb: () => 
     async (res: DIDWalletInfo) => {
       did.save(res.pin, getWebWalletStorageKey(options?.appId));
       dispatch(basicWebWalletView.setWalletPin.actions(res.pin));
-      pageState && OpenPageService.closePage(pageState.eventName, { error: 0 });
+      if (pageState) {
+        OpenPageService.closePage(pageState.eventName, { error: 0 });
+      }
       SWEventController.dispatchEvent({ eventName: 'connected', data: { chainIds: [res.chainId] } });
     },
     [dispatch, options?.appId, pageState],
@@ -109,7 +116,9 @@ export default function SignInInner({ onLoginErrorCb }: { onLoginErrorCb: () => 
         const res = await createWallet(params);
         did.save(DEFAULT_PIN, getWebWalletStorageKey(options?.appId));
         dispatch(basicWebWalletView.setWalletPin.actions(DEFAULT_PIN));
-        pageState && OpenPageService.closePage(pageState.eventName, { error: 0 });
+        if (pageState) {
+          OpenPageService.closePage(pageState.eventName, { error: 0 });
+        }
         SWEventController.dispatchEvent({ eventName: 'connected', data: { chainIds: [res?.chainId] } });
       } else {
         setCurrentLifeCircle({
@@ -249,13 +258,34 @@ export default function SignInInner({ onLoginErrorCb }: { onLoginErrorCb: () => 
   useEffect(() => {
     if (pageState && pageState.pageType === WalletPageType.CustomLogin) {
       console.log('handleSocialStep1Success pageState', pageState);
-      signHandle.onSocialFinish({
-        type: pageState.data.payload.socialType,
-        data: pageState.data.payload.socialData,
-      });
+      const loginType = pageState.data.payload.socialType;
+      const otherLoginType = pageState.data.payload.otherLoginType;
+
+      if (loginType) {
+        signHandle.onSocialFinish({
+          type: pageState.data.payload.socialType,
+          data: pageState.data.payload.socialData,
+        });
+        return;
+      }
+      if (otherLoginType === 'Qrcode') {
+        setDesign('SocialDesign');
+        setCurrentLifeCircle({ LoginByScan: undefined });
+        setTimeout(() => {
+          ref.current?.setOpen(true);
+        }, 500);
+        return;
+      }
+      if (otherLoginType === 'Email') {
+        setDesign('Web2Design');
+        setCurrentLifeCircle({ Login: undefined });
+        setTimeout(() => {
+          ref.current?.setOpen(true);
+        }, 500);
+        return;
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageState]);
+  }, [pageState, signHandle]);
 
   const showSign = useMemo(() => {
     if (pageState?.pageType === WalletPageType.Login) return true;
@@ -268,18 +298,13 @@ export default function SignInInner({ onLoginErrorCb }: { onLoginErrorCb: () => 
     return true;
   }, [currentLifeCircle, pageState?.pageType]);
 
-  const showPageLoading = useMemo(
-    () => pageState?.pageType === WalletPageType.CustomLogin && Object.keys(currentLifeCircle).length === 0,
-    [currentLifeCircle, pageState?.pageType],
-  );
-
   return (
     <div>
       {showSign && (
         <SignIn
           ref={ref}
           keyboard={true}
-          design={'CryptoDesign'}
+          design={design }
           uiType={'Full'}
           defaultChainId={options?.networkType === 'MAINNET' ? 'tDVV' : 'tDVW'}
           defaultLifeCycle={currentLifeCircle}
@@ -291,7 +316,6 @@ export default function SignInInner({ onLoginErrorCb }: { onLoginErrorCb: () => 
           }}
         />
       )}
-      {showPageLoading && <Loading />}
     </div>
   );
 }

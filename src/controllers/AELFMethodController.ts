@@ -1,11 +1,4 @@
-import {
-  MethodsBase,
-  ResponseCode,
-  MethodsWallet,
-  ChainId,
-  NetworkType,
-  IRequestParams,
-} from '@portkey/provider-types';
+import { MethodsBase, ResponseCode, MethodsWallet, ChainId, NetworkType } from '@portkey/provider-types';
 import { RequestCommonHandler, SendResponseFun } from '../service/types';
 import { IRequestPayload, WalletPageType } from '../types';
 import errorHandler from '../utils/errorHandler';
@@ -39,9 +32,11 @@ const aelfMethodList = [
   MethodsBase.NETWORK,
   MethodsWallet.GET_WALLET_STATE,
   MethodsWallet.GET_WALLET_NAME,
+  MethodsWallet.GET_WALLET_AVATAR,
   MethodsWallet.GET_WALLET_CURRENT_MANAGER_ADDRESS,
   MethodsWallet.GET_WALLET_MANAGER_SYNC_STATUS,
   MethodsWallet.GET_WALLET_TRANSACTION_SIGNATURE,
+  MethodsWallet.WALLET_LOCK,
 ];
 interface AELFMethodControllerProps {
   approvalController: ApprovalController;
@@ -74,7 +69,8 @@ export default class AELFMethodController {
     const managerAddress = await this.dappManager.currentManagerAddress();
 
     if (!chainInfo) return;
-    const contract: any = await this.getCaContract(chainInfo);
+    const contract = await this.getCaContract(chainInfo);
+    if (!contract) return;
 
     const rs = await contract.callViewMethod('IsManagerReadOnly', {
       caHash,
@@ -159,19 +155,19 @@ export default class AELFMethodController {
       });
     }
 
-    const { guardiansApproved, approveInfo } = data;
-    const finallyApproveSymbol = this.config?.batchApproveNFT ? getApproveSymbol(approveInfo.symbol) : symbol;
+    const { guardiansApproved } = data;
+    const finallyApproveSymbol = this.config?.batchApproveNFT ? getApproveSymbol(symbol) : symbol;
 
-    return this.sendTransaction(sendResponse, {
+    return this.handleTransaction(sendResponse, {
       ...payload,
       method: ApproveMethod.ca,
       contractAddress: chainInfo?.caContractAddress,
       params: {
         paramsOption: {
           caHash,
-          spender: approveInfo.spender,
+          spender: spender,
           symbol: finallyApproveSymbol,
-          amount: approveInfo.amount,
+          amount: amount,
           guardiansApproved: getGuardiansApprovedByApprove(guardiansApproved),
         },
       },
@@ -215,6 +211,7 @@ export default class AELFMethodController {
       case MethodsBase.WALLET_INFO:
         this.getWalletInfo(sendResponse, message.payload);
         break;
+
       case MethodsWallet.GET_WALLET_SIGNATURE: {
         const isCipherText = checkIsCipherText(message.payload.payload.data);
         message.payload.payload.isCipherText = isCipherText;
@@ -245,11 +242,17 @@ export default class AELFMethodController {
         this.getWalletName(sendResponse, message.payload);
         break;
 
+      case MethodsWallet.GET_WALLET_AVATAR:
+        this.getWalletAvatar(sendResponse, message.payload);
+        break;
       case MethodsWallet.GET_WALLET_CURRENT_MANAGER_ADDRESS:
         this.getCurrentManagerAddress(sendResponse, message.payload);
         break;
       case MethodsWallet.GET_WALLET_MANAGER_SYNC_STATUS:
         this.getWalletManagerSyncStatus(sendResponse, message.payload);
+        break;
+      case MethodsWallet.WALLET_LOCK:
+        this.lockWallet(sendResponse, message.payload);
         break;
       default:
         sendResponse(
@@ -355,10 +358,32 @@ export default class AELFMethodController {
     }
   };
 
+  getWalletAvatar: RequestCommonHandler = async (sendResponse: SendResponseFun, message) => {
+    try {
+      // TODO: change
+      const isLocked = await this.dappManager.isLocked();
+      if (isLocked)
+        return sendResponse({
+          ...errorHandler(400001),
+          data: {
+            code: ResponseCode.UNAUTHENTICATED,
+          },
+        });
+
+      sendResponse({ ...errorHandler(0), data: await this.dappManager.walletAvatar() });
+    } catch (error) {
+      sendResponse({
+        ...errorHandler(500001),
+        data: {
+          code: ResponseCode.INTERNAL_ERROR,
+        },
+      });
+    }
+  };
+
   getWalletState: RequestCommonHandler = async (sendResponse: SendResponseFun, message) => {
     try {
       let data: any = {
-        isUnlocked: !this.dappManager.isLocked(),
         isConnected: !this.dappManager.isLocked(),
         isLogged: this.dappManager.isLogged(),
       };
@@ -406,6 +431,9 @@ export default class AELFMethodController {
 
   getChainId: RequestCommonHandler = async sendResponse => {
     try {
+      const result = await this.dappManager.getHolderInfoByManager();
+      console.log('getHolderInfoByManager', result);
+
       const chainId = await this.dappManager.chainId();
       sendResponse({ ...errorHandler(0), data: chainId });
     } catch (error) {
@@ -479,6 +507,58 @@ export default class AELFMethodController {
     } catch (error) {
       console.log('checkWalletSecurity error', error);
       throw 'checkWalletSecurity error';
+    }
+  };
+
+  handleTransaction: RequestCommonHandler = async (sendResponse, message) => {
+    try {
+      if (!message?.payload?.params)
+        return sendResponse({ ...errorHandler(400001), data: { code: ResponseCode.ERROR_IN_PARAMS } });
+
+      const { payload } = message;
+      console.log(message, 'message====sendTransaction');
+      const chainInfo = await this.dappManager.getChainInfo(payload.chainId);
+      const caHash = await this.dappManager.caHash();
+
+      if (!chainInfo) return;
+      if (!CA_METHOD_WHITELIST.includes(payload.method))
+        return sendResponse({
+          ...errorHandler(400001),
+          data: {
+            code: ResponseCode.CONTRACT_ERROR,
+            msg: 'The current method is not supported',
+          },
+        });
+
+      // transfer start
+      const contract: any = await this.getCaContract(chainInfo);
+      if (!contract) return;
+      const isForward = chainInfo.caContractAddress !== payload.contractAddress;
+
+      let paramsOption = (payload.params as { paramsOption: object }).paramsOption,
+        functionName = payload.method;
+
+      if (isForward) {
+        paramsOption = {
+          caHash,
+          methodName: payload.method,
+          contractAddress: payload.contractAddress,
+          args: paramsOption,
+        };
+        functionName = 'ManagerForwardCall';
+      }
+
+      const data = await contract!.callSendMethod(functionName, '', paramsOption, { onMethod: 'transactionHash' });
+      //  transfer finish
+      sendResponse({ ...errorHandler(0), data });
+    } catch (error) {
+      console.log('sendTransaction===', error);
+      sendResponse({
+        ...errorHandler(100001),
+        data: {
+          code: ResponseCode.INTERNAL_ERROR,
+        },
+      });
     }
   };
 
@@ -585,8 +665,6 @@ export default class AELFMethodController {
         chainId: payload.chainId,
       });
 
-      console.log('isApprove', isApprove);
-
       const key = randomId();
       if (isApprove) {
         if (payload?.params?.paramsOption.symbol == '*') {
@@ -594,42 +672,9 @@ export default class AELFMethodController {
         }
         const _config = this.config?.[origin];
         return this.handleApprove(sendResponse, message);
-      } else {
-        const isForward = chainInfo?.caContractAddress !== payload.contractAddress;
-        const method = isForward ? 'ManagerForwardCall' : payload?.method;
-
-        if (!CA_METHOD_WHITELIST.includes(method))
-          return sendResponse({
-            ...errorHandler(400001),
-            data: {
-              code: ResponseCode.CONTRACT_ERROR,
-              msg: 'The current method is not supported',
-            },
-          });
       }
 
-      // transfer start
-      const contract: any = await this.getCaContract(chainInfo);
-      if (!contract) return;
-      const isForward = chainInfo.caContractAddress !== payload.contractAddress;
-
-      let paramsOption = (payload.params as { paramsOption: object }).paramsOption,
-        functionName = payload.method;
-
-      if (isForward) {
-        paramsOption = {
-          caHash,
-          methodName: payload.method,
-          contractAddress: payload.contractAddress,
-          args: paramsOption,
-        };
-        functionName = 'ManagerForwardCall';
-      }
-
-      const data = await contract!.callSendMethod(functionName, '', paramsOption, { onMethod: 'transactionHash' });
-      //  transfer finish
-
-      sendResponse({ ...errorHandler(0), data });
+      this.handleTransaction(sendResponse, message);
     } catch (error) {
       console.log('sendTransaction===', error);
       sendResponse({
@@ -789,6 +834,21 @@ export default class AELFMethodController {
     try {
       const caHash = await this.dappManager.caHash();
       sendResponse({ ...errorHandler(0), data: caHash });
+    } catch (error) {
+      console.log('getCAHash===', error);
+      sendResponse({
+        ...errorHandler(100001),
+        data: {
+          code: ResponseCode.INTERNAL_ERROR,
+        },
+      });
+    }
+  };
+
+  lockWallet: RequestCommonHandler = async sendResponse => {
+    try {
+      const result = await this.dappManager.lockWallet();
+      sendResponse({ ...errorHandler(0), data: result });
     } catch (error) {
       console.log('getCAHash===', error);
       sendResponse({
