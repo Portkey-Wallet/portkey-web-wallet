@@ -305,6 +305,8 @@ export default function SignInInner({ onLoginErrorCb }: { onLoginErrorCb: () => 
           ref={ref}
           keyboard={true}
           design={design }
+          showScanBackup={false}
+          showSocialEntry={false}
           uiType={'Full'}
           defaultChainId={options?.networkType === 'MAINNET' ? 'tDVV' : 'tDVW'}
           defaultLifeCycle={currentLifeCircle}

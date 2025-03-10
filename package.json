@@ -10,10 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@portkey/did": "2.19.0-alpha.12",
-    "@portkey/did-ui-react": "2.19.0-alpha.12",
+    "@portkey/did": "2.19.0-alpha.17",
+    "@portkey/did-ui-react": "2.19.0-alpha.17",
     "@portkey/iframe-provider": "^2.4.0-alpha.9",
-    "@portkey/onboarding": "2.19.0-alpha.12",
+    "@portkey/onboarding": "2.19.0-alpha.17",
     "@portkey/provider-types": "^2.4.0-alpha.9",
     "@types/qs": "^6.9.18",
     "aelf-sdk": "^3.4.7",
