@@ -186,7 +186,7 @@ function WebPageInner() {
         />
       )}
       {pin && did?.didWallet?.originChainId && (
-        <PortkeyAssetProvider pin={pin} originChainId={did?.didWallet?.originChainId || 'AELF'}>
+        <PortkeyAssetProvider pin={pin} originChainId={did?.didWallet?.originChainId || 'AELF'} isLoginOnChain={true}>
           {pageState?.pageType === WalletPageType.SetAllowance && (
             <ManagerApproveInner
               caHash={pageState.data.caHash}
