@@ -29,7 +29,7 @@ export function getManagerSignature(manager: any, data: any) {
   });
 }
 
-export function getContract({
+export async function getContract({
   manager,
   rpcUrl,
   contractAddress,
