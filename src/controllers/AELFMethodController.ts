@@ -520,8 +520,13 @@ export default class AELFMethodController {
       const chainInfo = await this.dappManager.getChainInfo(payload.chainId);
       const caHash = await this.dappManager.caHash();
 
-      if (!chainInfo) return;
-      if (!CA_METHOD_WHITELIST.includes(payload.method))
+      if (!chainInfo) {
+        return;
+      }
+      const isForward = chainInfo.caContractAddress !== payload.contractAddress;
+      const method = isForward ? 'ManagerForwardCall' : payload?.method;
+      // if (!CA_METHOD_WHITELIST.includes(payload.method))
+      if (!CA_METHOD_WHITELIST.includes(method))
         return sendResponse({
           ...errorHandler(400001),
           data: {
@@ -533,7 +538,7 @@ export default class AELFMethodController {
       // transfer start
       const contract: any = await this.getCaContract(chainInfo);
       if (!contract) return;
-      const isForward = chainInfo.caContractAddress !== payload.contractAddress;
+      // const isForward = chainInfo.caContractAddress !== payload.contractAddress;
 
       let paramsOption = (payload.params as { paramsOption: object }).paramsOption,
         functionName = payload.method;
@@ -568,10 +573,10 @@ export default class AELFMethodController {
         return sendResponse({ ...errorHandler(400001), data: { code: ResponseCode.ERROR_IN_PARAMS } });
 
       const { payload } = message;
-      console.log(message, 'message====sendTransaction');
       const chainInfo = await this.dappManager.getChainInfo(payload.chainId);
       const caHash = await this.dappManager.caHash();
       const originChainId = await this.dappManager.getOriginChainId();
+      console.log(message, chainInfo, 'message,chainInfo====sendTransaction');
 
       if (!chainInfo || !chainInfo.endPoint || !caHash)
         return sendResponse({
@@ -665,12 +670,12 @@ export default class AELFMethodController {
         chainId: payload.chainId,
       });
 
-      const key = randomId();
+      // const key = randomId();
       if (isApprove) {
         if (payload?.params?.paramsOption.symbol == '*') {
           return sendResponse({ ...errorHandler(400001), data: { code: ResponseCode.ERROR_IN_PARAMS } });
         }
-        const _config = this.config?.[origin];
+        // const _config = this.config?.[origin];
         return this.handleApprove(sendResponse, message);
       }
 
