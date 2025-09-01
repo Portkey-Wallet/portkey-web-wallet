@@ -126,9 +126,9 @@ function WebPageInner() {
   );
 
   const finishSetAllowance = useCallback(
-    ({ guardiansApproved }: { guardiansApproved: IGuardiansApproved[] }) => {
+    ({ guardiansApproved, amount, symbol }: { guardiansApproved: IGuardiansApproved[], amount: string; symbol: string; }) => {
       if (pageState) {
-        OpenPageService.closePage(pageState.eventName, { error: 0, data: { status: true, guardiansApproved } });
+        OpenPageService.closePage(pageState.eventName, { error: 0, data: { status: true, guardiansApproved, amount, symbol } });
       }
     },
     [pageState],

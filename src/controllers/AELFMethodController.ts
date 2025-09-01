@@ -5,16 +5,17 @@ import errorHandler from '../utils/errorHandler';
 import { WebWalletDappManager } from '../utils/dappManager/WebWalletDappManager';
 import ApprovalController from './ApprovalController';
 import SWEventController from './EventController/SWEventController';
-import { checkIsCipherText, getApproveSymbol } from '../utils';
+// import { checkIsCipherText, getApproveSymbol } from '../utils';
+import { checkIsCipherText } from '../utils';
 import { getContract, getManager, getManagerSignature, getSignature, getTransactionSignature } from '../utils/wallet';
-import { randomId } from '@portkey/utils';
+// import { randomId } from '@portkey/utils';
 import { ChainInfo } from '@portkey/services';
 import { customFetch } from '../utils/fetch';
 import { getNetworkConfig } from '../utils/config';
 import { CheckSecurityResult } from '../types/security';
 import { ApproveMethod, CA_METHOD_WHITELIST } from '../constants/dapp';
 import OpenPageService from '../service/OpenPageService';
-import { getGuardiansApprovedByApprove } from '../utils/guardian';
+// import { getGuardiansApprovedByApprove } from '../utils/guardian';
 import { ZERO } from '../constants/misc';
 
 const aelfMethodList = [
@@ -155,23 +156,30 @@ export default class AELFMethodController {
       });
     }
 
-    const { guardiansApproved } = data;
-    const finallyApproveSymbol = this.config?.batchApproveNFT ? getApproveSymbol(symbol) : symbol;
+    const { guardiansApproved, amount: approvedAmount, symbol: approvedSymbol } = data;
+    // const finallyApproveSymbol = this.config?.batchApproveNFT ? getApproveSymbol(symbol) : symbol;
 
+    // console.log('guardiansApproved: ', guardiansApproved);
+    // const guardiansApproved = data?.guardiansApproved || [];
     return this.handleTransaction(sendResponse, {
-      ...payload,
-      method: ApproveMethod.ca,
-      contractAddress: chainInfo?.caContractAddress,
-      params: {
-        paramsOption: {
-          caHash,
-          spender: spender,
-          symbol: finallyApproveSymbol,
-          amount: amount,
-          guardiansApproved: getGuardiansApprovedByApprove(guardiansApproved),
+      payload: {
+        ...payload,
+        method: ApproveMethod.ca,
+        contractAddress: chainInfo?.caContractAddress,
+        params: {
+          paramsOption: {
+            caHash,
+            spender: spender,
+            // symbol: finallyApproveSymbol,
+            symbol: approvedSymbol,
+            // amount: amount,
+            amount: approvedAmount,
+            // guardiansApproved: getGuardiansApprovedByApprove(guardiansApproved),
+            guardiansApproved: guardiansApproved,
+          },
         },
-      },
-    });
+      }
+    } as any);
   };
 
   handleRequest = async ({ params, method, callBack }: { params: any; method: any; callBack: any }) => {
