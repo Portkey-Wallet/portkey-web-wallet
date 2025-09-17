@@ -79,6 +79,7 @@ export function ServiceWorker() {
   }, []);
 
   useEffect(() => {
+    if (import.meta.env.VITE_SHOW_ENTRY) return;
     pageStream = new ContentPostStream({ name: CONTENT_TARGET });
 
     pageStream.on('data', (data: Buffer) => {
