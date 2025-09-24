@@ -9,3 +9,14 @@
   top: 10px;
   right: 10px;
 }
+
+.completed-wrapper .completed-content .content-desc {
+  width: 100%;
+  word-wrap: break-word;
+  padding: 0 10px;
+}
+
+.portkey-ui-modal_drawer-root .portkey-ant-drawer-body,
+.portkey-ui-modal_drawer-root .portkey-ant-modal-body {
+  max-height: 90vh;
+}

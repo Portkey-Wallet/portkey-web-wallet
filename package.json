@@ -5,15 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:entry": "VITE_SHOW_ENTRY=true vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@portkey/did": "2.20.0-alpha.3",
-    "@portkey/did-ui-react": "2.20.0-alpha.3",
+    "@portkey/did": "2.22.0-alpha.7",
+    "@portkey/did-ui-react": "2.22.0-alpha.7",
     "@portkey/iframe-provider": "^2.4.0-alpha.9",
-    "@portkey/onboarding": "2.20.0-alpha.3",
+    "@portkey/onboarding": "2.22.0-alpha.7",
     "@portkey/provider-types": "^2.4.0-alpha.9",
     "@types/qs": "^6.9.18",
     "aelf-sdk": "^3.4.7",

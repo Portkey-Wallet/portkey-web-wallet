@@ -31,6 +31,7 @@ import useVerifier from '../hooks/useVerifier';
 import useGuardianList from '../hooks/guardian';
 import { addGuardian } from '../utils/guardian';
 import './index.css';
+import DevEntry from '@/components/DevEntry';
 
 function WebPageInner() {
   const [{ pageState, pin, options }] = useWebWallet();
@@ -126,9 +127,20 @@ function WebPageInner() {
   );
 
   const finishSetAllowance = useCallback(
-    ({ guardiansApproved, amount, symbol }: { guardiansApproved: IGuardiansApproved[], amount: string; symbol: string; }) => {
+    ({
+      guardiansApproved,
+      amount,
+      symbol,
+    }: {
+      guardiansApproved: IGuardiansApproved[];
+      amount: string;
+      symbol: string;
+    }) => {
       if (pageState) {
-        OpenPageService.closePage(pageState.eventName, { error: 0, data: { status: true, guardiansApproved, amount, symbol } });
+        OpenPageService.closePage(pageState.eventName, {
+          error: 0,
+          data: { status: true, guardiansApproved, amount, symbol },
+        });
       }
     },
     [pageState],
@@ -155,7 +167,7 @@ function WebPageInner() {
         }}>
         <CustomSvg type="Close" strokeColor="var(--sds-color-icon-default-default)" style={{ width: 20, height: 20 }} />
       </div>
-
+      {import.meta.env.VITE_SHOW_ENTRY && <DevEntry />}
       {(pageState?.pageType === WalletPageType.Login || pageState?.pageType === WalletPageType.CustomLogin) && (
         <SignInInner onLoginErrorCb={onDisconnect} />
       )}
