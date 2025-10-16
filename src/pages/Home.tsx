@@ -48,24 +48,32 @@ function WebPageInner() {
     });
   }, [currentGuardianList, verifierList]);
 
-  const onDisconnect = useCallback(() => {
-    localStorage.removeItem(getWebWalletStorageKey(options?.appId));
-    localStorage.removeItem('guardianListForLogin');
-    localStorage.removeItem('guardianListForAddGuardian');
+  const onDisconnect = useCallback(
+    (isForgetPin?: boolean) => {
+      localStorage.removeItem(getWebWalletStorageKey(options?.appId));
+      localStorage.removeItem('guardianListForLogin');
+      localStorage.removeItem('guardianListForAddGuardian');
 
-    did.reset();
-    SWEventController.dispatchEvent({
-      eventName: 'disconnected',
-      data: { message: 'user logout' },
-    });
+      did.reset();
+      SWEventController.dispatchEvent({
+        eventName: 'disconnected',
+        data: { message: 'user logout' },
+      });
 
-    if (pageState) {
-      OpenPageService.closePage(
-        pageState.eventName,
-        errorHandler(200004, new ProviderError(ResponseMessagePreset['USER_DENIED'], ResponseCode.USER_DENIED)),
-      );
-    }
-  }, [options?.appId, pageState]);
+      if (pageState) {
+        OpenPageService.closePage(
+          pageState.eventName,
+          errorHandler(
+            200004,
+            isForgetPin
+              ? new ProviderError('Don’t worry, you can still access your account by logging in.', 10001)
+              : new ProviderError(ResponseMessagePreset['USER_DENIED'], ResponseCode.USER_DENIED),
+          ),
+        );
+      }
+    },
+    [options?.appId, pageState],
+  );
 
   const onTGSignInApprovalSuccess = useCallback(
     async (guardiansApproved: GuardiansApproved[]) => {
@@ -172,7 +180,9 @@ function WebPageInner() {
         <SignInInner onLoginErrorCb={onDisconnect} />
       )}
 
-      {pageState?.pageType === WalletPageType.UnLock && <UnlockInner onUnlock={onUnlock} onForgetPin={onDisconnect} />}
+      {pageState?.pageType === WalletPageType.UnLock && (
+        <UnlockInner onUnlock={onUnlock} onForgetPin={() => onDisconnect(true)} />
+      )}
       {/* TODO: just for telegram */}
       {pageState?.pageType === WalletPageType.GuardianApproveForLogin && pageState.data && (
         <GuardianApproval
