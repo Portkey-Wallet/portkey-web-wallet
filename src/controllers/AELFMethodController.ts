@@ -128,7 +128,7 @@ export default class AELFMethodController {
       });
     }
 
-    const { data } = await OpenPageService.openPage({
+    const allowanceReq = await OpenPageService.openPage({
       pageType: WalletPageType.SetAllowance,
       data: {
         caHash,
@@ -147,7 +147,16 @@ export default class AELFMethodController {
       },
     });
 
-    if (!data) {
+    if (allowanceReq?.error !== 0 && allowanceReq?.message) {
+      return sendResponse({
+        ...allowanceReq,
+        data: {
+          code: allowanceReq.error,
+        },
+      });
+    }
+
+    if (!allowanceReq?.data) {
       return sendResponse({
         ...errorHandler(410002),
         data: {
@@ -156,7 +165,7 @@ export default class AELFMethodController {
       });
     }
 
-    const { guardiansApproved, amount: approvedAmount, symbol: approvedSymbol } = data;
+    const { guardiansApproved, amount: approvedAmount, symbol: approvedSymbol } = allowanceReq.data;
     // const finallyApproveSymbol = this.config?.batchApproveNFT ? getApproveSymbol(symbol) : symbol;
 
     // console.log('guardiansApproved: ', guardiansApproved);
@@ -178,7 +187,7 @@ export default class AELFMethodController {
             guardiansApproved: guardiansApproved,
           },
         },
-      }
+      },
     } as any);
   };
 
