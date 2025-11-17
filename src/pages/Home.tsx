@@ -154,6 +154,14 @@ function WebPageInner() {
     [pageState],
   );
 
+  const onUserDenied = useCallback(() => {
+    if (pageState)
+      OpenPageService.closePage(
+        pageState.eventName,
+        errorHandler(200003, new ProviderError(ResponseMessagePreset['USER_DENIED'], ResponseCode.USER_DENIED)),
+      );
+  }, [pageState]);
+
   useEffect(() => {
     if (pageState?.data?.originChainId || pageState?.data?.caHash) {
       getVerifierList(pageState?.data?.originChainId);
@@ -165,14 +173,7 @@ function WebPageInner() {
     <div className="page-wrap" style={{ backgroundColor: 'var(--sds-color-background-default-default)' }}>
       <div
         className="page-close-wrap"
-        onClick={() => {
-          if (pageState) {
-            OpenPageService.closePage(
-              pageState.eventName,
-              errorHandler(200003, new ProviderError(ResponseMessagePreset['USER_DENIED'], ResponseCode.USER_DENIED)),
-            );
-          }
-        }}>
+        onClick={onUserDenied}>
         <CustomSvg type="Close" strokeColor="var(--sds-color-icon-default-default)" style={{ width: 20, height: 20 }} />
       </div>
       {import.meta.env.VITE_SHOW_ENTRY && <DevEntry />}
@@ -218,6 +219,7 @@ function WebPageInner() {
               targetChainId={pageState.data.targetChainId}
               networkType={pageState.data.networkType}
               onFinish={finishSetAllowance}
+              onCancel={onUserDenied}
             />
           )}
 
